@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="GuruxDLMS\Objects\GXObject.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDateTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSLNSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSServerBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSSNSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXOBISTemplate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSVariant.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXStandardObisCodeCollection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXStandardObisCode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXAttributeCollection.h">
+      <Filter>ManufacturerSettings</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXDLMSAttribute.h">
+      <Filter>ManufacturerSettings</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXAssociationLogicalNameObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXAssociationShortNameObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\IGXDLMSBase.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\ErrorCodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXAPDU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXApplicationContextName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXAuthentication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDateTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSLimits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSLNSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSServerBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSVariant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXOBISTemplate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXObjectCollection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXRegisterObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXStandardObisCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXStandardObisCodeCollection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXUserInformation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{a53b9b26-ab63-4b41-b20f-2936067053a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ManufacturerSettings">
+      <UniqueIdentifier>{f38c56f3-52f6-444e-8968-16311ef4018f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{49648668-0ce3-4ec4-aad6-fc235f1b4fa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{97f92070-f2e9-443a-9496-f3bba542f9a5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
