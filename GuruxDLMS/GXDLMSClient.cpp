@@ -1,17 +1,35 @@
 //
 // --------------------------------------------------------------------------
 //  Gurux Ltd
+// 
 //
 //
+// Filename:        $HeadURL$
 //
-// Filename:        $HeadURL:  $
-//
-// Version:         $Revision:  $,
-//                  $Date:  $
-//                  $Author: $
+// Version:         $Revision$,
+//                  $Date$
+//                  $Author$
 //
 // Copyright (c) Gurux Ltd
 //
+//---------------------------------------------------------------------------
+//
+//  DESCRIPTION
+//
+// This file is a part of Gurux Device Framework.
+//
+// Gurux Device Framework is Open Source software; you can redistribute it
+// and/or modify it under the terms of the GNU General Public License 
+// as published by the Free Software Foundation; version 2 of the License.
+// Gurux Device Framework is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+// See the GNU General Public License for more details.
+//
+// More information of Gurux products: http://www.gurux.org
+//
+// This code is licensed under the GNU General Public License v2. 
+// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
 //---------------------------------------------------------------------------
 
 #include "Enums.h"
@@ -83,6 +101,10 @@ int CGXDLMSClient::GetDataFromPacket(unsigned char* Packet, int PacketSize, unsi
 
 int CGXDLMSClient::ParseUAResponse(vector<unsigned char>& data)
 {	
+	if (m_base.GetInterfaceType() == GXDLMS_INTERFACETYPE_NET && data.size() == 0)
+	{
+		return ERROR_CODES_OK;
+	}
 	return ParseUAResponse(&data[0], data.size());
 }
 
@@ -388,7 +410,7 @@ int CGXDLMSClient::Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int A
 	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
-int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXObjectCollection& objects)
+int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXObjectCollection& objects, bool findDescriptions)
 {		
 	int ret;
 	if (m_base.m_UseLogicalNameReferencing) 
@@ -403,7 +425,10 @@ int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXObjectCollection
 	{
 		return ret;
 	}
-	UpdateOBISCodes(objects);
+	if (findDescriptions)
+	{
+		UpdateOBISCodes(objects);
+	}
 	return ERROR_CODES_OK;
 }
 
@@ -800,13 +825,27 @@ void CGXDLMSClient::UpdateOBISCodes(CGXObjectCollection& objects)
 	str.append(OBIS_CODES11);
     CGXStandardObisCodeCollection codes;
 	vector< basic_string<char> > rows = GXHelpers::Split(str, "\r\n", true);
+	int row = 0;
+	basic_string<char> last;
 	for(vector< basic_string<char> >::iterator it = rows.begin(); it != rows.end(); ++it)
 	{
         vector< basic_string<char> > items = GXHelpers::Split(*it, ";\r\n", false);
+		//Mikko
+		if (items.size() != 8)
+		{
+			items = GXHelpers::Split(*it, ";\r\n", false);
+		}
 		assert(items.size() == 8);	
         vector< basic_string<char> > obis = GXHelpers::Split(items[0], ".\r\n", false);
+		//Mikko
+		if (obis.size() != 6)
+		{
+			obis = GXHelpers::Split(items[0], ".\r\n", false);
+		}
         basic_string<char> str = items[3] + "; " + items[4] + "; " + items[5] + "; " + items[6] + "; " + items[7];
         codes.push_back(CGXStandardObisCode(obis, str, items[1], items[2]));
+		++row;
+		last = *it;
     }
 	for(vector<CGXObject*>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
