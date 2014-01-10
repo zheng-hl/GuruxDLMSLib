@@ -396,6 +396,34 @@ int CGXDLMSClient::Read(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int At
 	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
+int CGXDLMSClient::Method(CGXObject* item, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets)
+{
+	return Method(item->GetName(), item->GetObjectType(), AttributeOrdinal, Data, Packets);         
+}
+
+int CGXDLMSClient::Method(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, CGXDLMSVariant Value, vector< vector<unsigned char> >& Packets)
+{
+	Packets.clear();
+	if (InterfaceClass == OBJECT_TYPE_NONE || AttributeOrdinal < 0)
+	{
+		return ERROR_CODES_INVALID_PARAMETER;
+	}	
+	m_base.ClearProgress();
+	vector<unsigned char> data;
+	CGXOBISTemplate::SetData(data, Value.vt, Value);
+	if (!m_base.m_UseLogicalNameReferencing)
+    {
+        int value, count;
+		CGXDLMS::GetActionInfo(InterfaceClass, value, count);
+        if (AttributeOrdinal > count)
+        {
+            return ERROR_CODES_INVALID_PARAMETER;
+        }
+        AttributeOrdinal = (value + (AttributeOrdinal - 1) * 0x8);
+    }
+	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, DLMS_COMMAND_METHOD_REQUEST, Packets);    
+}
+
 int CGXDLMSClient::Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, CGXDLMSVariant Value, vector< vector<unsigned char> >& Packets)
 {
 	Packets.clear();

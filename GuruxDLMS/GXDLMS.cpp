@@ -286,7 +286,14 @@ int CGXDLMS::GenerateMessage(CGXDLMSVariant& name, int ParameterCount, vector<un
 				GXHelpers::AddRange(buff, ln, 6);
 			}			
             buff.push_back(AttributeOrdinal);
-            buff.push_back(0x0); //Items count
+			if (data.size() == 0)
+            {
+                buff.push_back(0x0); //Items count
+            }
+            else
+            {
+                buff.push_back(0x1); //Items count
+            }            
         }
     }
     else

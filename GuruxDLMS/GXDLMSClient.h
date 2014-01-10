@@ -161,6 +161,22 @@ public:
 	int Read(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, vector< vector<unsigned char> >& Packets);
 
 	/////////////////////////////////////////////////////////////////////////////
+	// Generate Method (Action) request.
+	/////////////////////////////////////////////////////////////////////////////
+	int Method(CGXObject* item, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets);
+	/////////////////////////////////////////////////////////////////////////////
+	// Returns Method request query as byte array.
+	/////////////////////////////////////////////////////////////////////////////
+	// name: Short or Logical Name of the object to write.
+	// InterfaceClass: Type of the DLMS object.
+	// AttributeOrdinal: The ordinal number of the requested attribute.
+	// Data: Action Data.
+	// Packets: Allocated packets.
+	// Returns: 0 if succeed. Otherwise error number.
+	/////////////////////////////////////////////////////////////////////////////
+	int Method(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets);
+
+	/////////////////////////////////////////////////////////////////////////////
 	// Returns Write query as byte array.
 	/////////////////////////////////////////////////////////////////////////////
 	// name: Short or Logical Name of the object to write.

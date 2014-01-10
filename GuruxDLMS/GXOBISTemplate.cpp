@@ -449,7 +449,6 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	else if (Type == DLMS_DATA_TYPE_OCTET_STRING)
 	{
 		GXHelpers::AddRange(value.byteArr, pBuff, dataSize);
-		//GXHelpers::ChangeByteOrder(&value.bVal, pBuff, dataSize);
 	}
 	else
 	{
