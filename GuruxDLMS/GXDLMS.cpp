@@ -286,7 +286,7 @@ int CGXDLMS::GenerateMessage(CGXDLMSVariant& name, int ParameterCount, vector<un
 				GXHelpers::AddRange(buff, ln, 6);
 			}			
             buff.push_back(AttributeOrdinal);
-			if (data.size() == 0)
+			if (data.size() == 0 || cmd == DLMS_COMMAND_SET_REQUEST)
             {
                 buff.push_back(0x0); //Items count
             }

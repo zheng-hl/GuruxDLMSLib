@@ -398,7 +398,8 @@ int CGXDLMSClient::Read(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int At
 
 int CGXDLMSClient::Method(CGXObject* item, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets)
 {
-	return Method(item->GetName(), item->GetObjectType(), AttributeOrdinal, Data, Packets);         
+	CGXDLMSVariant name = item->GetName();
+	return Method(name, item->GetObjectType(), AttributeOrdinal, Data, Packets);         
 }
 
 int CGXDLMSClient::Method(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, CGXDLMSVariant Value, vector< vector<unsigned char> >& Packets)
