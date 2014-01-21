@@ -176,7 +176,8 @@ int CGXDLMSClient::ChangeType(vector<unsigned char> value, DLMS_DATA_TYPE type, 
 	newValue.Clear();
 	if (value.size() == 0)
     {
-		if (type == DLMS_DATA_TYPE_STRING || type == DLMS_DATA_TYPE_OCTET_STRING)
+		if (type == DLMS_DATA_TYPE_STRING || type == DLMS_DATA_TYPE_OCTET_STRING ||
+			type == DLMS_DATA_TYPE_STRING_UTF8)
 		{
 			newValue = "";
 		}

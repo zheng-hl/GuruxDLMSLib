@@ -710,19 +710,17 @@ int CGXDLMS::AddFrame(int Type, bool MoreFrames, vector<unsigned char>& Data, in
 	std::vector<unsigned char> buff(0, len);	
 	if (m_InterfaceType == GXDLMS_INTERFACETYPE_NET)
 	{
+		//Client or server address is not given in right format.
+		//Like this:
+		// CGXDLMSClient cl(true, (unsigned short) 3, (unsigned short) 23, GXDLMS_AUTHENTICATION_NONE, NULL, GXDLMS_INTERFACETYPE_NET);	
+		if (clientSize != 2 || serverSize != 2)
+		{
+			return ERROR_CODES_INVALID_PARAMETER;
+		}
+
 		//Add version 0x0001
 		unsigned short version = 1;
 		GXHelpers::ChangeByteOrder(buff, &version, 2);
-//		buff.push_back(0x00);
-//		buff.push_back(0x01);		
-#ifdef _BIG_ENDIAN
-		//Add Source (Client)
-		buff.push_back((unsigned char) (ClientID >> 8) & 0xFF);
-		buff.push_back((ClientID & 0xFF));
-		//Add Destination (Server)		
-		buff.push_back((unsigned char) (ServerID >> 8) & 0xFF);
-		buff.push_back((ServerID & 0xFF));
-#else
 		if(m_Server)
 		{
 			//Add Destination (Server)		
@@ -737,7 +735,6 @@ int CGXDLMS::AddFrame(int Type, bool MoreFrames, vector<unsigned char>& Data, in
 			//Add Destination (Server)		
 			GXHelpers::ChangeByteOrder(buff, &ServerID.bVal, serverSize);
 		}
-#endif				
 		//Add data length. 2 bytes.
 		buff.push_back((unsigned char) (Count >> 8) & 0xFF);
 		buff.push_back((Count & 0xFF));

@@ -63,6 +63,11 @@ public:
 		return m_base.m_UseLogicalNameReferencing;
 	}
 
+	GXDLMS_INTERFACETYPE GetIntefaceType()
+	{
+		return m_base.m_InterfaceType;
+	}
+
 	GXDLMSLimits& GetLimits()
 	{
 		return m_base.m_Limits;
