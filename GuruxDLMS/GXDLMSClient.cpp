@@ -37,9 +37,9 @@
 #include "GXHelpers.h"
 #include "GXAPDU.h"
 #include "GXOBISTemplate.h"
-#include "Objects/GXObject.h"
+#include "Objects/GXDLMSObject.h"
 #include "OBiscodes.h"
-#include "Objects/GXObject.h"
+#include "Objects/GXDLMSObject.h"
 
 CGXDLMSClient::CGXDLMSClient(bool UseLogicalNameReferencing, 
 				CGXDLMSVariant ClientID,
@@ -56,6 +56,20 @@ CGXDLMSClient::CGXDLMSClient(bool UseLogicalNameReferencing,
 	m_base.m_InterfaceType = IntefaceType;
 	m_base.m_Authentication = Authentication;
 	m_base.m_pPassword = pPassword;
+}
+
+CGXDLMSClient::~CGXDLMSClient()
+{
+	if (m_base.m_pLNSettings != NULL)
+	{
+		delete m_base.m_pLNSettings;
+		m_base.m_pLNSettings = NULL;
+	}
+	if (m_base.m_pSNSettings != NULL)
+	{
+		delete m_base.m_pSNSettings;
+		m_base.m_pSNSettings = NULL;
+	}	
 }
 
 int CGXDLMSClient::SNRMRequest(vector< vector<unsigned char> >& Packets)
@@ -191,7 +205,7 @@ int CGXDLMSClient::ChangeType(vector<unsigned char> value, DLMS_DATA_TYPE type, 
     int ret;
 	unsigned char* pBuff = &value[0];
 	int size = value.size();
-	if ((ret = CGXOBISTemplate::GetData(pBuff, size, DLMS_DATA_TYPE_NONE, newValue)) != 0)
+	if ((ret = CGXOBISTemplate::GetData(pBuff, size, type, newValue)) != 0)
 	{
 		return ret;
 	}	
@@ -397,7 +411,7 @@ int CGXDLMSClient::Read(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int At
 	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
-int CGXDLMSClient::Method(CGXObject* item, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets)
+int CGXDLMSClient::Method(CGXDLMSObject* item, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets)
 {
 	CGXDLMSVariant name = item->GetName();
 	return Method(name, item->GetObjectType(), AttributeOrdinal, Data, Packets);         
@@ -440,7 +454,7 @@ int CGXDLMSClient::Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int A
 	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
-int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXObjectCollection& objects, bool findDescriptions)
+int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXDLMSObjectCollection& objects, bool findDescriptions)
 {		
 	int ret;
 	if (m_base.m_UseLogicalNameReferencing) 
@@ -462,81 +476,7 @@ int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXObjectCollection
 	return ERROR_CODES_OK;
 }
 
-int CGXDLMSClient::ParseSortObject(vector<unsigned char>& data, CGXObject*& pObj)
-{	
-	int len = data.size();
-	unsigned char* pBuff = &data[0];
-	int ret;
-	CGXDLMSVariant it;
-	if ((ret = CGXOBISTemplate::GetData(pBuff, len, DLMS_DATA_TYPE_NONE, it)) != 0)
-	{
-		return ret;
-	}
-	if (it.vt != DLMS_DATA_TYPE_STRUCTURE || it.Arr.size() != 4)
-	{
-		return ERROR_CODES_INVALID_PARAMETER;
-	}
-	if (it.Arr[0].vt != DLMS_DATA_TYPE_UINT16 ||
-		it.Arr[1].vt != DLMS_DATA_TYPE_OCTET_STRING ||
-		it.Arr[2].vt != DLMS_DATA_TYPE_INT8 ||
-		it.Arr[3].vt != DLMS_DATA_TYPE_UINT16)
-	{
-		return ERROR_CODES_INVALID_PARAMETER;
-	}
-	OBJECT_TYPE class_id = (OBJECT_TYPE) it.Arr[0].iVal;
-	//Sort object is not needed for FIFO and LIFO.
-	if (class_id != OBJECT_TYPE_NONE)
-	{
-		CGXDLMSVariant ln = it.Arr[1];
-		char attribute_index = it.Arr[2].bVal;
-		unsigned short data_index = it.Arr[3].iVal;
-		pObj = new CGXObject(0, class_id, 0, ln.byteArr);
-		pObj->SetAttributeIndex(attribute_index);
-		pObj->SetDataIndex(data_index);
-	}
-	return ERROR_CODES_OK;
-}
-
-int CGXDLMSClient::ParseColumns(vector<unsigned char>& data, CGXObjectCollection* pg)
-{	
-	int len = data.size();
-	unsigned char* pBuff = &data[0];
-	int ret;
-	CGXDLMSVariant items;
-	if ((ret = CGXOBISTemplate::GetData(pBuff, len, DLMS_DATA_TYPE_NONE, items)) != 0)
-	{
-		return ret;
-	}
-	if (items.vt != DLMS_DATA_TYPE_ARRAY)
-	{
-		return ERROR_CODES_INVALID_PARAMETER;
-	}
-	for(vector<CGXDLMSVariant>::iterator it = items.Arr.begin(); it != items.Arr.end(); ++it)
-	{		
-		if (it->vt != DLMS_DATA_TYPE_STRUCTURE || it->Arr.size() != 4)
-		{
-			return ERROR_CODES_INVALID_PARAMETER;
-		}
-		if (it->Arr[0].vt != DLMS_DATA_TYPE_UINT16 ||
-			it->Arr[1].vt != DLMS_DATA_TYPE_OCTET_STRING ||
-			it->Arr[2].vt != DLMS_DATA_TYPE_INT8 ||
-			it->Arr[3].vt != DLMS_DATA_TYPE_UINT16)
-		{
-			return ERROR_CODES_INVALID_PARAMETER;
-		}
-		OBJECT_TYPE class_id = (OBJECT_TYPE) it->Arr[0].iVal;
-		CGXDLMSVariant ln = it->Arr[1];
-		char attribute_index = it->Arr[2].bVal;
-		unsigned short data_index = it->Arr[3].iVal;
-		CGXObject* pObj = new CGXObject(0, class_id, 0, ln.byteArr);
-		pObj->SetAttributeIndex(attribute_index);
-		pObj->SetDataIndex(data_index);
-		pg->push_back(pObj);
-	}	
-	return ERROR_CODES_OK;
-}
-
-int CGXDLMSClient::ReadRowsByRange(CGXDLMSVariant& Name, CGXObject* pSortObject, struct tm* start, struct tm* end, vector< vector<unsigned char> >& Packets)
+int CGXDLMSClient::ReadRowsByRange(CGXDLMSVariant& Name, CGXDLMSObject* pSortObject, struct tm* start, struct tm* end, vector< vector<unsigned char> >& Packets)
 {		
 	if (pSortObject == NULL)
 	{
@@ -840,7 +780,83 @@ int CGXDLMSClient::GetValue(unsigned char* pBuff, int Size, CGXDLMSVariant& valu
 	return CGXOBISTemplate::GetData(pBuff, Size, DLMS_DATA_TYPE_NONE, value);
 }
 
-void CGXDLMSClient::UpdateOBISCodes(CGXObjectCollection& objects)
+int CGXDLMSClient::GetValue(vector<unsigned char>& data, CGXDLMSObject* pObject, int index, CGXDLMSVariant& value)
+{	
+	int ret;	
+	if ((ret = GetValue(&data[0], data.size(), value)) != 0)
+	{
+		return ret;
+	}		
+	if (value.vt == DLMS_DATA_TYPE_ARRAY)
+	{
+		DLMS_DATA_TYPE type;
+		if ((ret = pObject->GetUIDataType(index, type)) != 0)
+		{
+			return ret;
+		}
+		if (type != DLMS_DATA_TYPE_NONE)
+		{
+			CGXDLMSVariant tmp = value;
+			value.Clear();
+			return ChangeType(tmp.byteArr, type, value);
+		}
+	}
+	return ret;
+}
+
+int CGXDLMSClient::GetValue(unsigned char* pBuff, int Size, CGXDLMSObject* pObject, int index, CGXDLMSVariant& value)
+{	
+	int ret;
+	if ((ret = GetValue(pBuff, Size, value)) != 0)
+	{
+		return ret;
+	}
+	if (value.vt == DLMS_DATA_TYPE_ARRAY)
+	{
+		DLMS_DATA_TYPE type;
+		if ((ret = pObject->GetUIDataType(index, type)) != 0)
+		{
+			return ret;
+		}
+		if (type != DLMS_DATA_TYPE_NONE)
+		{
+			CGXDLMSVariant tmp = value;
+			value.Clear();
+			return ChangeType(tmp.byteArr, type, value);
+		}
+	}
+	return ret;
+}
+
+int CGXDLMSClient::UpdateValue(unsigned char* pBuff, int Size, CGXDLMSObject* pObject, int index, CGXDLMSVariant& value)
+{
+	value.Clear();
+	int ret;
+	if ((ret = GetValue(pBuff, Size, pObject, index, value)) != 0)
+	{
+		return ret;
+	}
+	return pObject->SetValue(index, value);
+}
+
+int CGXDLMSClient::UpdateValue(vector<unsigned char>& data, CGXDLMSObject* pObject, int index, CGXDLMSVariant& value)
+{
+	return UpdateValue(&data[0], data.size(), pObject, index, value);
+}
+
+
+int CGXDLMSClient::GetDataType(vector<unsigned char>& data, DLMS_DATA_TYPE& Type)
+{	
+	return GetDataType(&data[0], data.size(), Type);
+}
+
+int CGXDLMSClient::GetDataType(unsigned char* pBuff, int Size, DLMS_DATA_TYPE& Type)
+{	
+	return CGXOBISTemplate::GetDataType(pBuff, Size, Type);
+}
+
+
+void CGXDLMSClient::UpdateOBISCodes(CGXDLMSObjectCollection& objects)
 {                    
     basic_string<char> str = OBIS_CODES1;        
 	str.append(OBIS_CODES2);
@@ -860,14 +876,12 @@ void CGXDLMSClient::UpdateOBISCodes(CGXObjectCollection& objects)
 	for(vector< basic_string<char> >::iterator it = rows.begin(); it != rows.end(); ++it)
 	{
         vector< basic_string<char> > items = GXHelpers::Split(*it, ";\r\n", false);
-		//Mikko
 		if (items.size() != 8)
 		{
 			items = GXHelpers::Split(*it, ";\r\n", false);
 		}
 		assert(items.size() == 8);	
         vector< basic_string<char> > obis = GXHelpers::Split(items[0], ".\r\n", false);
-		//Mikko
 		if (obis.size() != 6)
 		{
 			obis = GXHelpers::Split(items[0], ".\r\n", false);
@@ -877,9 +891,10 @@ void CGXDLMSClient::UpdateOBISCodes(CGXObjectCollection& objects)
 		++row;
 		last = *it;
     }
-	for(vector<CGXObject*>::iterator it = objects.begin(); it != objects.end(); ++it)
+	for(vector<CGXDLMSObject*>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-        basic_string<char> ln = (*it)->GetLogicalName();
+        string ln;
+		(*it)->GetLogicalName(ln);
         CGXStandardObisCode code;		
         if (codes.Find(ln, (*it)->GetObjectType(), code))
         {

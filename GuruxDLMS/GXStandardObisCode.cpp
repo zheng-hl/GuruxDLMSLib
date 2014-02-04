@@ -38,10 +38,6 @@ CGXStandardObisCode::CGXStandardObisCode(vector< basic_string<char> > obis,
 					basic_string<char>& desc, 
 					basic_string<char>& interfaces, basic_string<char>& dataType)
 {
-	if (obis.size() != 6)
-	{
-		int mikko = 1;//assert(true); //Mikko
-	}
     m_OBIS.clear();
 	m_OBIS.insert(m_OBIS.end(), obis.begin(), obis.end());
     SetDescription(desc);

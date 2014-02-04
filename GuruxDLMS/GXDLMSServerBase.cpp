@@ -35,8 +35,8 @@
 #include "GXAPDU.h"
 #include "GXDLMSServerBase.h"
 #include "GXOBISTemplate.h"
-#include "Objects/GXAssociationLogicalNameObject.h"
-#include "Objects/GXAssociationShortNameObject.h"
+#include "Objects/GXDLMSAssociationLogicalName.h"
+#include "Objects/GXDLMSAssociationShortName.h"
 #include "ManufacturerSettings/GXAttributeCollection.h"
 #include "GXDLMS.h"
 
@@ -155,10 +155,12 @@ int CGXDLMSServerBase::Initialize()
 	bool association = false;
     if (m_SortedItems.size() != m_Items.size())
     {
+		string ln;
         for (unsigned long pos = 0; pos != m_Items.size(); ++pos)
         {                    
-			CGXObject* it = m_Items.at(pos);
-			if (strcmp(it->GetLogicalName().c_str(), "0.0.0.0.0.0") == 0)
+			CGXDLMSObject* it = m_Items.at(pos);
+			it->GetLogicalName(ln);
+			if (strcmp(ln.c_str(), "0.0.0.0.0.0") == 0)
             {
                 return ERROR_CODES_INVALID_LOGICAL_NAME;
             }                    					
@@ -173,8 +175,8 @@ int CGXDLMSServerBase::Initialize()
         {
             if (m_Base.GetUseLogicalNameReferencing())
             {                
-				CGXAssociationLogicalNameObject* pLn = new CGXAssociationLogicalNameObject();
-				for (CGXObjectCollection::iterator it = m_Items.begin(); it != m_Items.end(); ++it)
+				CGXDLMSAssociationLogicalName* pLn = new CGXDLMSAssociationLogicalName();
+				for (CGXDLMSObjectCollection::iterator it = m_Items.begin(); it != m_Items.end(); ++it)
 				{
 					pLn->GetObjectList().push_back(*it);
 				}				
@@ -182,8 +184,8 @@ int CGXDLMSServerBase::Initialize()
             }
             else
             {
-				CGXAssociationShortNameObject* pSn = new CGXAssociationShortNameObject();
-				for (CGXObjectCollection::iterator it = m_Items.begin(); it != m_Items.end(); ++it)
+				CGXDLMSAssociationShortName* pSn = new CGXDLMSAssociationShortName();
+				for (CGXDLMSObjectCollection::iterator it = m_Items.begin(); it != m_Items.end(); ++it)
 				{
 					pSn->GetObjectList().push_back(*it);
 				}				
@@ -195,7 +197,7 @@ int CGXDLMSServerBase::Initialize()
         if (!m_Base.GetUseLogicalNameReferencing())
         {			
             m_SortedItems.clear();
-			for (CGXObjectCollection::iterator it = m_Items.begin(); it != m_Items.end(); ++it)
+			for (CGXDLMSObjectCollection::iterator it = m_Items.begin(); it != m_Items.end(); ++it)
 			{
 				unsigned short itemSN = (*it)->GetShortName();				
                 //Generate Short Name if not given.
@@ -356,7 +358,7 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
         printf("CGXDLMSServerBase::HandleRequest failed. Wait more data.\r\n");
         return ERROR_CODES_FALSE; //Wait more data.
     }
-    CGXObject* pItem = NULL;
+    CGXDLMSObject* pItem = NULL;
     unsigned char* allData = NULL;
 	int DataSize = 0;
     //byte frame;
@@ -432,7 +434,7 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 		{
 			name.ChangeType(DLMS_DATA_TYPE_UINT16);
 			unsigned short sn = name.uiVal;	
-			for(std::map<unsigned short, CGXObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
+			for(std::map<unsigned short, CGXDLMSObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
 			{
 				if (it->first > sn)
 				{
@@ -464,7 +466,7 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 			}
             if (value.vt == DLMS_DATA_TYPE_OCTET_STRING)
             {
-                dt = pItem->GetUIDataType(index);
+                pItem->GetUIDataType(index, dt);
                 if (dt != DLMS_DATA_TYPE_NONE)
                 {
 					if (value.ChangeType(dt) != 0)
@@ -515,7 +517,7 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 			printf("CGXDLMSServerBase::HandleRequest::Read\r\n");
 			name.ChangeType(DLMS_DATA_TYPE_UINT16);
 			unsigned short sn = name.uiVal;	
-			for(std::map<unsigned short, CGXObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
+			for(std::map<unsigned short, CGXDLMSObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
 			{
 				if (it->first > sn)
 				{
@@ -578,7 +580,7 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 			{
 				name.ChangeType(DLMS_DATA_TYPE_UINT16);
 				unsigned short sn = name.uiVal;	
-				for(std::map<unsigned short, CGXObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
+				for(std::map<unsigned short, CGXDLMSObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
 				{
 					if (it->first > sn)
 					{
@@ -645,7 +647,7 @@ int CGXDLMSServerBase::ReadReply(CGXDLMSVariant name, OBJECT_TYPE objectType, in
 	return ret;
 }
 
-int CGXDLMSServerBase::GetValue(CGXObject* pItem, int index, unsigned char* pParameters, int count, vector< vector<unsigned char> >& Packets)
+int CGXDLMSServerBase::GetValue(CGXDLMSObject* pItem, int index, unsigned char* pParameters, int count, vector< vector<unsigned char> >& Packets)
 {
 	if (index < 1)
 	{
@@ -653,19 +655,24 @@ int CGXDLMSServerBase::GetValue(CGXObject* pItem, int index, unsigned char* pPar
 		return ERROR_CODES_INVALID_PARAMETER;
 	}
 	m_SendData.clear();
-	CGXDLMSVariant value;
-	DLMS_DATA_TYPE type = DLMS_DATA_TYPE_NONE;
+	CGXDLMSVariant value;	
 	IGXDLMSBase* pTmp = dynamic_cast<IGXDLMSBase*>(pItem);
-	int ret = pTmp->GetValue(index, pParameters, count, value, type);
+	int ret = pTmp->GetValue(index, pParameters, count, value);
 	if (ret != ERROR_CODES_OK)
 	{
 		printf("GetValue failed with error code %d\r\n", ret);
 		//Return HW error.
 		return ServerReportError(1, 5, 3, Packets);    
 	}
+	DLMS_DATA_TYPE type = DLMS_DATA_TYPE_NONE;	
+	if (pItem->GetDataType(index, type) != ERROR_CODES_OK)
+	{
+		printf("GetDataType failed with error code %d\r\n", ret);
+		//Return HW error.
+		return ServerReportError(1, 5, 3, Packets);    
+	}
 	if (type == DLMS_DATA_TYPE_NONE)
 	{
-		type = pItem->GetDataType(index);	
 		if (type == DLMS_DATA_TYPE_NONE)
 		{
 			type = value.vt;

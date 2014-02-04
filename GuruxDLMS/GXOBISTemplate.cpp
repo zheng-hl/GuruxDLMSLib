@@ -261,6 +261,38 @@ int CGXOBISTemplate::SetData(std::vector<unsigned char>& buff, DLMS_DATA_TYPE ty
 	}	
 	return ERROR_CODES_OK;
 }
+
+void CGXOBISTemplate::GetLogicalName(vector<unsigned char> data, string& ln)
+{
+	if (data.size() == 0)
+	{
+		ln.clear();
+	}
+	else
+	{
+		GetLogicalName(&data[0], ln);
+
+	}
+}
+
+void CGXOBISTemplate::GetLogicalName(unsigned char* buff, string& ln)
+{
+	int dataSize;
+	char tmp[25];
+#if _MSC_VER > 1000
+	dataSize = sprintf_s(tmp, 25, "%d.%d.%d.%d.%d.%d", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5]) + 1;
+#else
+	dataSize = sprintf(tmp, "%d.%d.%d.%d.%d.%d", buff[0], buff[1], buff[2], buff[3], buff[4], buff[5]) + 1;
+#endif		
+	if (dataSize > 25)
+	{	
+		assert(0);			
+	}
+	ln.clear();
+	ln.append(tmp, dataSize);	
+}
+
+
 /*
 int CGXOBISTemplate::SetData(std::vector<unsigned char>& buff, DLMS_DATA_TYPE Type, void* Data, int DataLen)
 {
@@ -353,7 +385,14 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	else if (Type == DLMS_DATA_TYPE_STRING)
 	{
 		int pos = 0;
-		dataSize = CGXOBISTemplate::GetObjectCount(pBuff, pos);
+		if (knownType)
+		{
+			dataSize = size;
+		}
+		else
+		{		
+			dataSize = CGXOBISTemplate::GetObjectCount(pBuff, pos);
+		}
 		pBuff += pos;
 		size -= pos;
 		if (size < dataSize) //If there is not enough data available.
@@ -366,7 +405,14 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	else if (Type == DLMS_DATA_TYPE_OCTET_STRING)
 	{
 		int pos = 0;
-		dataSize = CGXOBISTemplate::GetObjectCount(pBuff, pos);
+		if (knownType)
+		{
+			dataSize = size;
+		}
+		else
+		{	
+			dataSize = CGXOBISTemplate::GetObjectCount(pBuff, pos);
+		}
 		pBuff += pos;
 		size -= pos;
 		if (size < dataSize) //If there is not enough data available.
@@ -458,6 +504,12 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	pBuff += dataSize;	
 	size -= dataSize;
 	return ERROR_CODES_OK;
+}
+
+bool CGXOBISTemplate::IsLogicalNameEmpty(unsigned char* pLN)
+{
+	const unsigned char EmptyLN[] = {0, 0, 0, 0, 0, 0};
+	return memcmp(pLN, EmptyLN, 6) == 0;
 }
 
 const char* CGXOBISTemplate::GetUnitAsString(int unit)

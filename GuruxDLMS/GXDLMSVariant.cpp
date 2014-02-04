@@ -790,6 +790,10 @@ int CGXDLMSVariant::ChangeType(DLMS_DATA_TYPE newType)
 		Clear();
 		return ERROR_CODES_OK;
 	}
+	if (vt == DLMS_DATA_TYPE_ARRAY && newType == DLMS_DATA_TYPE_OCTET_STRING)
+	{
+		return ERROR_CODES_OK;
+	}
 	if (vt == DLMS_DATA_TYPE_STRING)
 	{
 		return Convert(this, newType);
@@ -1516,4 +1520,78 @@ basic_string<char> CGXDLMSVariant::ToTime()
 		return buff;
 	}
 	return "Invalid";
+}
+
+int CGXDLMSVariant::ToInteger()
+{
+	if (vt == DLMS_DATA_TYPE_NONE)
+	{
+		return 0;
+	}
+
+	if (vt == DLMS_DATA_TYPE_BOOLEAN)
+	{
+		return boolVal ? 1 : 0;
+	}
+	if (vt == DLMS_DATA_TYPE_INT32)
+	{
+		return lVal;
+	}
+	if (vt == DLMS_DATA_TYPE_UINT32)
+	{
+		return ulVal;
+	}
+	if (vt == DLMS_DATA_TYPE_BINARY_CODED_DESIMAL)
+	{
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_STRING_UTF8)
+	{
+		//TODO:
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_INT8)
+	{
+		return cVal;
+	}
+
+	if (vt == DLMS_DATA_TYPE_INT16)
+	{
+		return iVal;
+	}
+	if (vt == DLMS_DATA_TYPE_UINT8)
+	{
+		return bVal;
+	}
+	if (vt == DLMS_DATA_TYPE_UINT16)
+	{
+		return uiVal;
+	}
+	if (vt == DLMS_DATA_TYPE_INT64)
+	{
+		//TODO:
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_UINT64)
+	{
+		//TODO:
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_ENUM)
+	{
+		return bVal;
+	}
+	if (vt == DLMS_DATA_TYPE_FLOAT32)
+	{
+		//TODO:
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_FLOAT64)
+	{
+		//TODO:
+		assert(0);
+	}
+	assert(0);
+	return 0;
+
 }

@@ -35,6 +35,8 @@
 #include "GXDLMS.h"
 #include "GXAPDU.h"
 #include "GXOBISTemplate.h"
+#include "GXDLMSClient.h"
+#include "GXDLMSObjectFactory.h"
 
 void CGXDLMS::GenerateFCS16Table()
 {
@@ -653,6 +655,7 @@ int CGXDLMS::GetDataFromHDLCFrame(unsigned char* pBuff, int dataSize, unsigned c
 		{
 			return ERROR_CODES_OUTOFMEMORY;
 		}
+		/*
 		// IEC62056-53 Sections 8.3 and 8.6.1
 		// If Get.Response.Normal.
 		unsigned char res = pBuff[pos1];
@@ -669,6 +672,39 @@ int CGXDLMS::GetDataFromHDLCFrame(unsigned char* pBuff, int dataSize, unsigned c
 				return ret;
 			}			
 		}
+		DataLen = dataSize - pos1;
+		*/
+		if (DataLen != 0)
+        {
+            // IEC62056-53 Sections 8.3 and 8.6.1
+            // If Get.Response.Normal.
+            cmd = (DLMS_COMMAND) pBuff[pos1];                   
+            //If chiphering is used.
+            if (cmd == DLMS_COMMAND_GLO_GET_REQUEST ||
+                cmd == DLMS_COMMAND_GLO_GET_RESPONSE ||
+                cmd == DLMS_COMMAND_GLO_SET_REQUEST ||
+                cmd == DLMS_COMMAND_GLO_SET_RESPONSE ||
+                cmd == DLMS_COMMAND_GLO_METHOD_REQUEST ||
+                cmd == DLMS_COMMAND_GLO_METHOD_RESPONSE ||
+                cmd == DLMS_COMMAND_AARQ ||
+				cmd == DLMS_COMMAND_DISCONNECT_RESPONSE ||
+				cmd == DLMS_COMMAND_DISCONNECT_RESPONSE)
+            {
+            }
+            else if (bReply && cmd != 0x61 && cmd != 0x60)
+            {
+				//If meter returns exception.
+				if (cmd == 0xD8)
+				{
+					printf("Meter returns exception.\r\n");
+					return ERROR_CODES_INVALID_RESPONSE;
+				}
+                if ((ret = GetData(pBuff, pos1, dataSize, bReply, cmd, MoreData, pError)) != 0)
+				{
+					return ret;
+				}
+            }
+        }
 		DataLen = dataSize - pos1;
 	}
 	
@@ -791,7 +827,7 @@ int CGXDLMS::AddFrame(int Type, bool MoreFrames, vector<unsigned char>& Data, in
 }
 
 // SN referencing
-int CGXDLMS::ParseSNObjects(unsigned char* pBuff, int len, CGXObjectCollection& objects)
+int CGXDLMS::ParseSNObjects(unsigned char* pBuff, int len, CGXDLMSObjectCollection& objects)
 {	
 	objects.clear();
 	int ret;
@@ -817,32 +853,45 @@ int CGXDLMS::ParseSNObjects(unsigned char* pBuff, int len, CGXObjectCollection& 
 		if (value.vt != DLMS_DATA_TYPE_STRUCTURE || value.Arr.size() != 4)
 		{
 			return ERROR_CODES_INVALID_PARAMETER;
-		}
-		if (value.Arr[0].vt != DLMS_DATA_TYPE_UINT16 ||
+		}		
+		if (value.Arr[0].vt != DLMS_DATA_TYPE_INT16 ||
 			value.Arr[1].vt != DLMS_DATA_TYPE_UINT16 ||
 			value.Arr[2].vt != DLMS_DATA_TYPE_UINT8 ||
 			value.Arr[3].vt != DLMS_DATA_TYPE_OCTET_STRING)
 		{
 			return ERROR_CODES_INVALID_PARAMETER;
 		}
-		short sn = value.Arr[0].iVal;
-		unsigned short class_id = value.Arr[1].uiVal;
-		unsigned char version = value.Arr[2].bVal;
+		short sn = value.Arr[0].ToInteger();
+		unsigned short class_id = (unsigned short) value.Arr[1].ToInteger();
+		unsigned char version = (unsigned char) value.Arr[2].ToInteger();
 		CGXDLMSVariant ln = value.Arr[3];
+		CGXDLMSObject* pObj = CGXDLMSObjectFactory::CreateObject((OBJECT_TYPE) class_id);
+		pObj->m_SN = sn;
+		pObj->SetVersion(version);
+		int cnt = ln.byteArr.size();
+		assert(cnt == 6);
+		for(int pos = 0; pos != cnt; ++pos)
+		{
+			pObj->m_LN[pos] = *(ln.byteArr.begin() + pos);
+		}
+
+		objects.push_back(pObj);
+		/*
 		if (class_id == OBJECT_TYPE_PROFILE_GENERIC)
 		{
-			objects.push_back(new CGXObject(sn, class_id, version, ln.byteArr));
+			objects.push_back(new CGXDLMSObject(sn, class_id, version, ln.byteArr));
 		}
 		else
 		{
-			objects.push_back(new CGXObject(sn, class_id, version, ln.byteArr));
-		}		
+			objects.push_back(new CGXDLMSObject(sn, class_id, version, ln.byteArr));
+		}
+		*/
 	}
 	return 0;
 }
 
 // LN referencing
-int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXObjectCollection& objects)
+int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXDLMSObjectCollection& objects)
 {
 	objects.clear();
 	int ret;
@@ -878,12 +927,12 @@ int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXObjectCollection& 
 		{
 			return ERROR_CODES_INVALID_PARAMETER;
 		}
-		unsigned short class_id = value.Arr[0].uiVal;
+		unsigned short class_id = value.Arr[0].ToInteger();
 		if (value.Arr[1].vt != DLMS_DATA_TYPE_UINT8)
 		{
 			return ERROR_CODES_INVALID_PARAMETER;
 		}
-		unsigned char version = value.Arr[0].bVal;
+		unsigned char version = value.Arr[1].ToInteger();
 
 		if (value.Arr[2].vt != DLMS_DATA_TYPE_OCTET_STRING)
 		{
@@ -895,10 +944,13 @@ int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXObjectCollection& 
 		{
 			return ERROR_CODES_INVALID_PARAMETER;
 		}
+		CGXDLMSObject* pObj = CGXDLMSObjectFactory::CreateObject((OBJECT_TYPE) class_id);
+		pObj->SetVersion(version);
 		int cnt;
 		// attribute_access_descriptor Start
 		if (value.Arr[3].Arr[0].vt != DLMS_DATA_TYPE_ARRAY)
 		{
+			delete pObj;
 			return ERROR_CODES_INVALID_PARAMETER;
 		}		
 		for(unsigned int pos = 0; pos != value.Arr[3].Arr[0].Arr.size(); ++pos)
@@ -906,14 +958,17 @@ int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXObjectCollection& 
 			if (value.Arr[3].Arr[0].Arr[pos].vt != DLMS_DATA_TYPE_STRUCTURE || 
 				value.Arr[3].Arr[0].Arr[pos].Arr.size() != 3)
 			{
+				delete pObj;
 				return ERROR_CODES_INVALID_PARAMETER;
 			}
-			//Get attribute_id
+			int id = value.Arr[3].Arr[0].Arr[pos].Arr[0].ToInteger();
 			//Get access_mode			
 			if (value.Arr[3].Arr[0].Arr[pos].Arr[1].vt != DLMS_DATA_TYPE_ENUM)
 			{
+				delete pObj;
 				return ERROR_CODES_INVALID_PARAMETER;
 			}			
+			pObj->SetAccess(id, (ACCESSMODE) value.Arr[3].Arr[0].Arr[pos].Arr[1].ToInteger());
 			//Get access_selectors			
 			if (value.Arr[3].Arr[0].Arr[pos].Arr[2].vt == DLMS_DATA_TYPE_ARRAY)
 			{
@@ -925,6 +980,7 @@ int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXObjectCollection& 
 			}
 			else if (value.Arr[3].Arr[0].Arr[pos].Arr[2].vt != DLMS_DATA_TYPE_NONE)
 			{
+				delete pObj;
 				return ERROR_CODES_INVALID_PARAMETER;
 			}
 		}	
@@ -932,29 +988,36 @@ int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXObjectCollection& 
 		// method_access_item Start				
 		if (value.Arr[3].Arr[1].vt != DLMS_DATA_TYPE_ARRAY)
 		{
+			delete pObj;
 			return ERROR_CODES_INVALID_PARAMETER;
 		}
-		cnt = value.Arr[3].Arr[1].Arr.size();
-		for(int pos = 0; pos != cnt; ++pos)
+		for(unsigned int pos = 0; pos != value.Arr[3].Arr[1].Arr.size(); ++pos)
 		{
-			if (value.Arr[3].Arr[1].Arr[pos].vt != DLMS_DATA_TYPE_STRUCTURE || value.Arr[3].Arr[1].Arr[pos].Arr.size() != 2)
+			CGXDLMSVariant tmp = value.Arr[3].Arr[1].Arr[pos];
+			if (tmp.vt != DLMS_DATA_TYPE_STRUCTURE || 
+				tmp.Arr.size() != 2)
 			{
+				delete pObj;
 				return ERROR_CODES_INVALID_PARAMETER;
 			}
-			//Get method_id
-			//value.Arr[3].Arr[1].Arr[pos].Arr[0];
-			//Get access_mode
-			//value.Arr[3].Arr[1].Arr[pos].Arr[1];
-		}
+			int id = tmp.Arr[0].ToInteger();
+			//Get access_mode			
+			//In version 0 data type is boolean.
+			if (tmp.Arr[1].vt != DLMS_DATA_TYPE_ENUM && tmp.Arr[1].vt != DLMS_DATA_TYPE_BOOLEAN)
+			{
+				delete pObj;
+				return ERROR_CODES_INVALID_PARAMETER;
+			}			
+			pObj->SetMethodAccess(id, (METHOD_ACCESSMODE) tmp.Arr[1].ToInteger());			
+		}	
 		// method_access_item End
-		if (class_id == OBJECT_TYPE_PROFILE_GENERIC)
+		cnt = ln.byteArr.size();
+		assert(cnt == 6);
+		for(int pos = 0; pos != cnt; ++pos)
 		{
-			objects.push_back(new CGXObject(0, class_id, version, ln.byteArr));
+			pObj->m_LN[pos] = *(ln.byteArr.begin() + pos);
 		}
-		else
-		{
-			objects.push_back(new CGXObject(0, class_id, version, ln.byteArr));
-		}
+		objects.push_back(pObj);
 	}	
 	return 0;
 }
@@ -1189,7 +1252,7 @@ int CGXDLMS::GetActionInfo(OBJECT_TYPE objectType, int& value, int& count)
             value = 0x60;
             count = 3;
             break;
-        case OBJECT_TYPE_MBUS_SETUP:
+        case OBJECT_TYPE_MBUS_SLAVE_PORT_SETUP:
             value = 0x60;
             count = 8;
             break;

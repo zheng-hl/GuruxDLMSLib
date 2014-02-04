@@ -27,7 +27,7 @@ local.properties
 
 # PDT-specific
 .buildpath
-
+*.onetoc2
 
 #################
 ## Visual Studio

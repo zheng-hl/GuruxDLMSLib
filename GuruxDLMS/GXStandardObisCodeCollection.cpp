@@ -88,9 +88,9 @@ bool CGXStandardObisCodeCollection::EqualsInterface(CGXStandardObisCode item, in
     {
         return true;
     }
-	char type[4];
+	char type[10];
 #if _MSC_VER > 1000
-	sprintf_s(type, 4, "%d", ic);
+	sprintf_s(type, 10, "%d", ic);
 #else
 	sprintf(type, "%d", ic);
 #endif				
@@ -142,10 +142,6 @@ bool CGXStandardObisCodeCollection::EqualsMask(basic_string<char> obis, int ic)
     {
         number = false;
         vector< basic_string<char> > tmp = GXHelpers::Split(obis, '-');
-		if (tmp.size() != 2)
-		{
-			vector< basic_string<char> > mikko = GXHelpers::Split(obis, '-');
-		}
 		int value1, value2;
 #if _MSC_VER > 1000
 		sscanf_s(tmp[0].c_str(), "%d", &value1);
