@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="GuruxDLMS\Objects\GXObject.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
     <ClCompile Include="GuruxDLMS\GXDateTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -34,6 +31,15 @@
     <ClCompile Include="GuruxDLMS\GXStandardObisCode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSClock.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSObject.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSObjectFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXAttributeCollection.h">
@@ -41,18 +47,6 @@
     </ClInclude>
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXDLMSAttribute.h">
       <Filter>ManufacturerSettings</Filter>
-    </ClInclude>
-    <ClInclude Include="GuruxDLMS\Objects\GXAssociationLogicalNameObject.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="GuruxDLMS\Objects\GXAssociationShortNameObject.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="GuruxDLMS\Objects\GXObject.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="GuruxDLMS\Objects\IGXDLMSBase.h">
-      <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="GuruxDLMS\Enums.h">
       <Filter>Header Files</Filter>
@@ -109,6 +103,156 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GuruxDLMS\GXUserInformation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSActionItem.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSActionSet.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSDayProfile.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSDayProfileAction.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSModemInitialisation.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSSeasonProfile.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSWeekProfile.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\IGXDLMSBase.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSQualityOfService.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSCaptureObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSSapAssignment.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSGPRSSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMonitoredValue.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSObjectCollection.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSData.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSActivityCalendar.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSSpecialDay.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSSpecialDaysTable.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSAutoAnswer.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSActionSchedule.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSImageActivateInfo.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSImageTransfer.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSDisconnectControl.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSEmergencyProfile.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSLimiter.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMBusClient.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSExtendedRegister.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSSecuritySetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSScriptTable.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegisterActivation.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSIp4SetupIpOption.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSIp4Setup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSHdlcSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPppSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSSchedule.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegister.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSIECOpticalPortSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSAssociationLogicalName.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSAssociationShortName.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSDemandRegister.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegisterMonitor.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSClock.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSModemConfiguration.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSTcpUdpSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSAutoConnect.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMacAddressSetup.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSProfileGeneric.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSObjectFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
