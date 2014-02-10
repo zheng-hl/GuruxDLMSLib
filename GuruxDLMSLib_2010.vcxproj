@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -22,7 +30,16 @@
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -32,16 +49,26 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -56,7 +83,32 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -81,8 +133,57 @@
     <ClCompile Include="GuruxDLMS\GXOBISTemplate.cpp" />
     <ClCompile Include="GuruxDLMS\GXStandardObisCode.cpp" />
     <ClCompile Include="GuruxDLMS\GXStandardObisCodeCollection.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSActionItem.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSActionSchedule.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSActionSet.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSActivityCalendar.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSAssociationLogicalName.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSAssociationShortName.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSAutoAnswer.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSAutoConnect.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSCaptureObject.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSClock.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSData.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSDayProfile.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSDayProfileAction.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSDemandRegister.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSDisconnectControl.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSEmergencyProfile.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSExtendedRegister.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSGPRSSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSHdlcSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSIECOpticalPortSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSImageActivateInfo.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSImageTransfer.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSIp4Setup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSIp4SetupIpOption.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSLimiter.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMacAddressSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMBusClient.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSModemConfiguration.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSModemInitialisation.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMonitoredValue.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSObject.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSObjectCollection.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPppSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPppSetupIPCPOption.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPppSetupLcpOption.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSProfileGeneric.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSQualityOfService.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSRegister.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSRegisterActivation.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSRegisterMonitor.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSSapAssignment.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSSchedule.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSScriptAction.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSScriptTable.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSSeasonProfile.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSSecuritySetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSSpecialDay.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSSpecialDaysTable.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSTcpUdpSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSWeekProfile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GuruxDLMS\Enums.h" />

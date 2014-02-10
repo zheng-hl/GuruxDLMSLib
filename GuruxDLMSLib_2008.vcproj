@@ -294,7 +294,7 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Objects"
+			Name="Object Header Files"
 			>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSActionItem.h"
@@ -330,10 +330,6 @@
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSCaptureObject.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GuruxDLMS\Objects\GXDLMSClock.cpp"
 				>
 			</File>
 			<File
@@ -425,10 +421,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GuruxDLMS\Objects\GXDLMSObject.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSObject.h"
 				>
 			</File>
@@ -494,6 +486,214 @@
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\IGXDLMSBase.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Object Source Files"
+			>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSActionItem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSActionSchedule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSActionSet.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSActivityCalendar.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSAssociationLogicalName.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSAssociationShortName.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSAutoAnswer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSAutoConnect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSCaptureObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSClock.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSDayProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSDayProfileAction.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSDemandRegister.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSDisconnectControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSEmergencyProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSExtendedRegister.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSGPRSSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSHdlcSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSIECOpticalPortSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSImageActivateInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSImageTransfer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSIp4Setup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSIp4SetupIpOption.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSLimiter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMacAddressSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMBusClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSModemConfiguration.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSModemInitialisation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMonitoredValue.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSObjectCollection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPppSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPppSetupIPCPOption.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPppSetupLcpOption.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSProfileGeneric.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSQualityOfService.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSRegister.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSRegisterActivation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSRegisterMonitor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSSapAssignment.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSSchedule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSScriptAction.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSScriptTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSSeasonProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSSecuritySetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSSpecialDay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSSpecialDaysTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSTcpUdpSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSWeekProfile.cpp"
 				>
 			</File>
 		</Filter>

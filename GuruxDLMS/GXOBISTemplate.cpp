@@ -209,20 +209,23 @@ int CGXOBISTemplate::SetData(std::vector<unsigned char>& buff, DLMS_DATA_TYPE ty
 	else if (type == DLMS_DATA_TYPE_OCTET_STRING)
 	{
 		if (value.vt == DLMS_DATA_TYPE_STRING)
-        {			
-            std::vector< basic_string<char> > items = GXHelpers::Split(value.strVal, '.');
-			if (items.size() == 1 && strcmp(items[0].c_str(), value.strVal.c_str()) == 0)
-			{
-				SetObjectCount(value.strVal.size(), buff);
-				buff.insert(buff.end(), reinterpret_cast<const unsigned char*>(&value.strVal[0]), 
-			        reinterpret_cast<const unsigned char*>(&value.strVal[0] + value.strVal.size()));
-			}
-			else
-			{
-				SetObjectCount(items.size(), buff);
-				for(std::vector< basic_string<char> >::iterator it = items.begin(); it != items.end(); ++it)
+        {	
+			if (value.strVal.length() != 0)
+			{			
+				std::vector< basic_string<char> > items = GXHelpers::Split(value.strVal, '.');
+				if (items.size() == 1 && strcmp(items[0].c_str(), value.strVal.c_str()) == 0)
 				{
-					buff.push_back((const char) atol((*it).c_str()));
+					SetObjectCount(value.strVal.size(), buff);
+					buff.insert(buff.end(), reinterpret_cast<const unsigned char*>(&value.strVal[0]), 
+						reinterpret_cast<const unsigned char*>(&value.strVal[0] + value.strVal.size()));
+				}
+				else
+				{
+					SetObjectCount(items.size(), buff);
+					for(std::vector< basic_string<char> >::iterator it = items.begin(); it != items.end(); ++it)
+					{
+						buff.push_back((const char) atol((*it).c_str()));
+					}
 				}
 			}
         }

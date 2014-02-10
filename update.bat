@@ -1,2 +1,2 @@
-echo a | xcopy GuruxDLMS ..\GuruxDLMSLibClientExample\GuruxDLMS /s
-echo a | xcopy GuruxDLMS ..\GuruxDLMSLibServerExample\GuruxDLMS /s
+echo a | xcopy GuruxDLMS\*.h ..\GuruxDLMSLibClientExample\GuruxDLMS /s
+echo a | xcopy GuruxDLMS\*.h ..\GuruxDLMSLibServerExample\GuruxDLMS /s
