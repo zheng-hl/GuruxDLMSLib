@@ -33,6 +33,7 @@
 //---------------------------------------------------------------------------
 
 #include "GXDLMSScriptTable.h"
+#include <sstream> 
 
 //Constructor.
 CGXDLMSScriptTable::CGXDLMSScriptTable() : CGXDLMSObject(OBJECT_TYPE_SCRIPT_TABLE)
@@ -66,6 +67,32 @@ int CGXDLMSScriptTable::GetAttributeCount()
 int CGXDLMSScriptTable::GetMethodCount()
 {
 	return 1;
+}
+
+void CGXDLMSScriptTable::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+		
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<pair<int, CGXDLMSScriptAction> >::iterator it = m_Scripts.begin(); it != m_Scripts.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		sb << it->first;
+		sb << " ";		
+		string str = it->second.ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());
 }
 
 void CGXDLMSScriptTable::GetAttributeIndexToRead(vector<int>& attributes)
@@ -129,7 +156,7 @@ int CGXDLMSScriptTable::GetValue(int index, unsigned char* parameters, int lengt
 				(ret = CGXOBISTemplate::SetData(data, DLMS_DATA_TYPE_UINT16, tmp.GetObjectType())) != 0 || //class_id
 				(ret = CGXOBISTemplate::SetData(data, DLMS_DATA_TYPE_OCTET_STRING, tmp.GetLogicalName())) != 0 || //logical_name
 				(ret = CGXOBISTemplate::SetData(data, DLMS_DATA_TYPE_INT8, tmp.GetIndex())) != 0 || //index
-				(ret = CGXOBISTemplate::SetData(data, tmp.GetParameterType(), tmp.GetObjectType())) != 0) //parameter
+				(ret = CGXOBISTemplate::SetData(data, tmp.GetParameter().vt, tmp.GetParameter())) != 0) //parameter
 			{
 				return ret;
 			}
@@ -158,23 +185,23 @@ int CGXDLMSScriptTable::SetValue(int index, CGXDLMSVariant& value)
         //Xemex meters do not return array as they shoul be according standard.
         if (value.Arr.size()  != 0)
         {				
-            if (value.Arr[0].vt == DLMS_DATA_TYPE_ARRAY)
+			if (value.Arr[0].vt == DLMS_DATA_TYPE_STRUCTURE)
             {
 				for(vector<CGXDLMSVariant>::iterator item = value.Arr.begin(); item != value.Arr.end(); ++item)                    
                 { 
 					int script_identifier = (*item).Arr[0].ToInteger();
-					for(vector<CGXDLMSVariant>::iterator arr = (*item).Arr[1].Arr.begin(); item != (*item).Arr[0].Arr.end(); ++arr)                    
+					for(vector<CGXDLMSVariant>::iterator arr = (*item).Arr[1].Arr.begin(); arr != (*item).Arr[1].Arr.end(); ++arr)                    
                     { 
                         CGXDLMSScriptAction it;
 						SCRIPT_ACTION_TYPE type = (SCRIPT_ACTION_TYPE) (*arr).Arr[0].ToInteger();
                         it.SetType(type);                
-                        OBJECT_TYPE ot = (OBJECT_TYPE) (*arr).Arr[0].ToInteger();
+                        OBJECT_TYPE ot = (OBJECT_TYPE) (*arr).Arr[1].ToInteger();
                         it.SetObjectType(ot);
                         string ln;							
 						CGXOBISTemplate::GetLogicalName((*arr).Arr[2].byteArr, ln);
                         it.SetLogicalName(ln);
                         it.SetIndex((*arr).Arr[3].ToInteger());
-                        it.SetParameter((*arr).Arr[4].ToInteger(), DLMS_DATA_TYPE_NONE);
+                        it.SetParameter((*arr).Arr[4]);
                         m_Scripts.push_back(pair<int, CGXDLMSScriptAction>(script_identifier, it));
                     }                    
                 }               
@@ -191,7 +218,7 @@ int CGXDLMSScriptTable::SetValue(int index, CGXDLMSVariant& value)
 				CGXOBISTemplate::GetLogicalName(value.Arr[1].Arr[2].byteArr, ln);
                 it.SetLogicalName(ln);
 				it.SetIndex(value.Arr[1].Arr[3].ToInteger());
-                it.SetParameter(value.Arr[1].Arr[4], DLMS_DATA_TYPE_NONE);
+                it.SetParameter(value.Arr[1].Arr[4]);
 				m_Scripts.push_back(pair<int, CGXDLMSScriptAction>(script_identifier, it));
             }
         }	

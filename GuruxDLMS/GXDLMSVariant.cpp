@@ -206,7 +206,14 @@ int CGXDLMSVariant::Convert(CGXDLMSVariant* item, DLMS_DATA_TYPE type)
 		}
 		if (tmp.vt == DLMS_DATA_TYPE_BIT_STRING)
 		{
+			//TODO:
 			return ERROR_CODES_NOT_IMPLEMENTED;
+		}
+		if (tmp.vt == DLMS_DATA_TYPE_DATETIME)
+		{
+			item->strVal = tmp.dateTime.ToString();
+			item->vt = type;
+			return ERROR_CODES_OK;
 		}
 		if (tmp.vt == DLMS_DATA_TYPE_OCTET_STRING)
 		{
@@ -447,6 +454,12 @@ CGXDLMSVariant::CGXDLMSVariant(CGXDLMSVariant* value)
 		vt == DLMS_DATA_TYPE_BIT_STRING)
 	{
 		this->strVal.append(value->strVal);
+	}
+	else if (vt == DLMS_DATA_TYPE_DATETIME ||
+		vt == DLMS_DATA_TYPE_DATE ||
+		vt == DLMS_DATA_TYPE_TIME)
+	{
+		this->dateTime = value->dateTime;
 	}
 	else if (vt == DLMS_DATA_TYPE_OCTET_STRING)
 	{
@@ -1085,7 +1098,15 @@ void CGXDLMSVariant::GetBytes(std::vector<unsigned char>& buff)
 			}
 			GXHelpers::ChangeByteOrder(buff, &year, 2);
 			//Add month
-			if (dt.tm_mon != -1 && (skip & DATETIME_SKIPS_MONTH) == 0)
+			if (dateTime.GetDaylightSavingsBegin())
+			{
+				buff.push_back(0xFE);
+			}
+			else if (dateTime.GetDaylightSavingsEnd())
+			{
+				buff.push_back(0xFD);
+			}
+			else if (dt.tm_mon != -1 && (skip & DATETIME_SKIPS_MONTH) == 0)
 			{
 				buff.push_back(dt.tm_mon + 1);
 			}
@@ -1137,7 +1158,7 @@ void CGXDLMSVariant::GetBytes(std::vector<unsigned char>& buff)
 			unsigned short dev = 0x8000; //(not specified)
 			GXHelpers::ChangeByteOrder(buff, &dev, 2);			 
 			//Add clock status
-			buff.push_back(0x0);
+			buff.push_back(this->dateTime.GetStatus());
 		}
 		else
 		{			
@@ -1584,13 +1605,95 @@ int CGXDLMSVariant::ToInteger()
 	}
 	if (vt == DLMS_DATA_TYPE_FLOAT32)
 	{
-		//TODO:
-		assert(0);
+		return (int) fltVal;
 	}
 	if (vt == DLMS_DATA_TYPE_FLOAT64)
 	{
+		return (int) dblVal;
+	}
+	if (vt == DLMS_DATA_TYPE_STRING)
+	{
+		int val = 0;
+		#if _MSC_VER > 1000
+		if (sscanf_s(strVal.c_str(), "%d", &val) == -1)
+#else
+		if (sscanf(strVal.c_str(), "%d", &val) == -1)
+#endif
+		{
+			assert(0);
+		}
+		return val;
+	}
+	assert(0);
+	return 0;
+}
+
+double CGXDLMSVariant::ToDouble()
+{
+	if (vt == DLMS_DATA_TYPE_NONE)
+	{
+		return 0;
+	}
+
+	if (vt == DLMS_DATA_TYPE_BOOLEAN)
+	{
+		return boolVal ? 1 : 0;
+	}
+	if (vt == DLMS_DATA_TYPE_INT32)
+	{
+		return lVal;
+	}
+	if (vt == DLMS_DATA_TYPE_UINT32)
+	{
+		return ulVal;
+	}
+	if (vt == DLMS_DATA_TYPE_BINARY_CODED_DESIMAL)
+	{
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_STRING_UTF8)
+	{
 		//TODO:
 		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_INT8)
+	{
+		return cVal;
+	}
+
+	if (vt == DLMS_DATA_TYPE_INT16)
+	{
+		return iVal;
+	}
+	if (vt == DLMS_DATA_TYPE_UINT8)
+	{
+		return bVal;
+	}
+	if (vt == DLMS_DATA_TYPE_UINT16)
+	{
+		return uiVal;
+	}
+	if (vt == DLMS_DATA_TYPE_INT64)
+	{
+		//TODO:
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_UINT64)
+	{
+		//TODO:
+		assert(0);
+	}
+	if (vt == DLMS_DATA_TYPE_ENUM)
+	{
+		return bVal;
+	}
+	if (vt == DLMS_DATA_TYPE_FLOAT32)
+	{
+		return fltVal;
+	}
+	if (vt == DLMS_DATA_TYPE_FLOAT64)
+	{
+		return dblVal;
 	}
 	assert(0);
 	return 0;

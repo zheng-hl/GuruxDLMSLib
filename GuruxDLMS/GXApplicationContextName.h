@@ -37,11 +37,11 @@
 const unsigned char LogicalNameObjectID[7] = {0x60, 0x85, 0x74, 0x05, 0x08, 0x01, 0x01};
 const unsigned char ShortNameObjectID[7] = {0x60, 0x85, 0x74, 0x05, 0x08, 0x01, 0x02};
 
-class CGXApplicationContextName
+class CGXApplicationContextNamePdu
 {
 public:
 	//Constructor
-	CGXApplicationContextName() : UseLN(false)
+	CGXApplicationContextNamePdu() : UseLN(false)
 	{		
 
 	}

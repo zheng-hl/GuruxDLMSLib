@@ -34,6 +34,7 @@
 
 #include "GXDLMSPppSetup.h"
 #include "../GXDLMSClient.h"
+#include <sstream> 
 
 //Constructor.
 CGXDLMSPppSetup::CGXDLMSPppSetup() : CGXDLMSObject(OBJECT_TYPE_PPP_SETUP)
@@ -118,6 +119,59 @@ int CGXDLMSPppSetup::GetAttributeCount()
 int CGXDLMSPppSetup::GetMethodCount()
 {
 	return 0;
+}
+
+void CGXDLMSPppSetup::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	values.push_back(m_PHYReference);	
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<CGXDLMSPppSetupLcpOption>::iterator it = m_LCPOptions.begin(); it != m_LCPOptions.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;		
+		string str = it->ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());	
+	
+	//Clear str.
+	sb.str(std::string());		
+	sb << '[';
+	empty = true;
+	for(vector<CGXDLMSPppSetupIPCPOption>::iterator it = m_IPCPOptions.begin(); it != m_IPCPOptions.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = it->ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());	
+
+	string str;		
+	if (m_UserName.size() != 0)
+	{
+		str.append((char*) &m_UserName[0], m_UserName.size());
+	}
+	if (m_Password.size() != 0)
+	{
+		str.append(" ");
+		str.append((char*) &m_Password[0], m_Password.size());
+	}
+	values.push_back(str);
 }
 
 void CGXDLMSPppSetup::GetAttributeIndexToRead(vector<int>& attributes)
@@ -294,7 +348,7 @@ int CGXDLMSPppSetup::SetValue(int index, CGXDLMSVariant& value)
     else if (index == 5)
     {
 		m_UserName = value.Arr[0].byteArr;
-        m_Password = value.Arr[1].byteArr;
+        m_Password = value.Arr[1].byteArr;		
     }
 	else
 	{

@@ -34,6 +34,7 @@
 #include <assert.h>
 #include "GXOBISTemplate.h"
 #include "GXHelpers.h"
+#include "GXDateTime.h"
 
 int CGXOBISTemplate::GetObjectCount(unsigned char* pBuff, int &pos)
 {
@@ -292,30 +293,57 @@ void CGXOBISTemplate::GetLogicalName(unsigned char* buff, string& ln)
 		assert(0);			
 	}
 	ln.clear();
-	ln.append(tmp, dataSize);	
+	ln.append(tmp, dataSize - 1);	
 }
 
-
-/*
-int CGXOBISTemplate::SetData(std::vector<unsigned char>& buff, DLMS_DATA_TYPE Type, void* Data, int DataLen)
+void CGXOBISTemplate::ToBitString(unsigned char value, int count, string& data)
 {
-	buff.push_back(Type);
-	//Do not change byte order.
-	if (Type == DLMS_DATA_TYPE_OCTET_STRING || Type == DLMS_DATA_TYPE_STRING)
-	{
-		buff.push_back(DataLen);
-		for(int pos = 0; pos != DataLen; ++pos)
-		{
-			buff.push_back(((unsigned char*) Data)[pos]);
-		}		
-	}	
-	else
-	{
-		GXHelpers::ChangeByteOrder(buff, Data, DataLen);
-	}	
-	return 0;
+    if (count > 8)
+    {
+        count = 8;
+    }
+    for (int pos = count - 1; pos != -1; --pos)
+    {
+        if ((value & (1 << pos)) != 0)
+        {
+			data.append("1");
+        }
+        else
+        {
+			data.append("0");
+        }
+    }
 }
-*/
+
+//Return UTC offset in minutes.
+int GetUTCOffset()
+{	
+    time_t currtime;
+    struct tm timeinfo;
+    time (&currtime);
+#if _MSC_VER > 1000
+	gmtime_s(&timeinfo, &currtime);
+#else
+	timeinfo = *gmtime(&currtime);
+#endif    
+    time_t utc = mktime(&timeinfo);
+#if _MSC_VER > 1000
+	localtime_s(&timeinfo, &currtime);
+#else
+	timeinfo = *localtime(&currtime);
+#endif    
+
+    time_t local = mktime(&timeinfo);
+    //Offset from UTC in minutes.
+    double offset = difftime(local, utc) / 60;
+    // Adjust for DST
+    if (timeinfo.tm_isdst)
+    {
+        offset += 60;
+    }
+    return (int) offset;
+}
+
 int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Type, CGXDLMSVariant& value, int* pTotalCnt, int* pReadCnt, int* CachePosition)
 {
 	int dataSize = 0; 
@@ -374,7 +402,20 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 		{
 			++tmp;
 		}
-		dataSize = (int) tmp;
+		int byteCnt = (int)tmp;
+        if (size < byteCnt) //If there is not enought data available.
+        {
+			size = 0;
+			return ERROR_CODES_OUTOFMEMORY;
+        }         
+        string str = "";
+        while (cnt > 0)
+        {
+            ToBitString(*(pBuff++), cnt, str);
+            cnt -= 8;
+			--size;
+        }                               
+        value = str;
 		return ERROR_CODES_OK;		
 	}
 	else if (Type == DLMS_DATA_TYPE_INT32)
@@ -470,15 +511,155 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	}
 	else if (Type == DLMS_DATA_TYPE_DATETIME)
 	{
-		dataSize = 12;
+		if (knownType)
+        {
+             //If there is not enought data available.
+            if (size < 12)
+            {
+                size = 0;
+				return ERROR_CODES_OUTOFMEMORY;
+            }
+        }
+        else
+        {
+             //If there is not enough data available.
+            ++pBuff; //Get count.
+			--size;
+            if (size < 12)
+            {
+                size = 0;
+				return ERROR_CODES_OUTOFMEMORY;
+            }
+        }
+        //Get year.
+        int year = GetUInt16(pBuff);
+		pBuff += 2;
+        //Get month
+        int month = *pBuff++;
+        //Get day
+        int day = *pBuff++;
+        //Skip week day
+        pBuff++;
+        //Get time.
+        int hour = *pBuff++;
+        int minute = *pBuff++;
+        int second = *pBuff++;
+        int ms = *pBuff++;
+        if (ms != 0xFF && ms != 0)
+        {
+            ms *= 10;
+        }        
+        int devitation = GetInt16(pBuff);                            
+		pBuff += 2;
+		GXDLMS_CLOCK_STATUS status = (GXDLMS_CLOCK_STATUS) *pBuff++;
+		size -= 12;
+        CGXDateTime dt(year, month, day, hour, minute, second, ms);
+        dt.SetStatus(status);
+		//Add devitation.
+		if ((devitation & 0xFFFF) != 0x8000)
+		{
+			struct tm val = dt.GetValue();
+			val.tm_isdst = (status & GXDLMS_CLOCK_STATUS_DAYLIGHT_SAVE_ACTIVE) != 0;
+			if (val.tm_isdst)
+			{
+				devitation += 60;
+			}
+			val.tm_min -= devitation;
+			if (mktime(&val) == -1)
+			{
+				assert(0);
+			}		
+			dt.SetValue(val);
+		}
+		else
+		{
+			long offset = GetUTCOffset();
+			struct tm val = dt.GetValue();
+			val.tm_isdst = (status & GXDLMS_CLOCK_STATUS_DAYLIGHT_SAVE_ACTIVE) != 0;
+			if (val.tm_isdst)
+			{
+				devitation += 60;
+			}
+			val.tm_min += offset;			
+			if (mktime(&val) == -1)
+			{
+				assert(0);
+			}		
+			dt.SetValue(val);
+		}		
+        value = dt;
+		return ERROR_CODES_OK;
 	}
 	else if (Type == DLMS_DATA_TYPE_DATE)
 	{
-		dataSize = 5;
+		if (knownType)
+        {
+             //If there is not enought data available.
+            if (size < 5)
+            {
+                size = 0;
+				return ERROR_CODES_OUTOFMEMORY;
+            }
+        }
+        else
+        {
+             //If there is not enough data available.
+            ++pBuff; //Get count.
+			--size;
+            if (size < 5)
+            {
+                size = 0;
+				return ERROR_CODES_OUTOFMEMORY;
+            }
+        }
+        //Get year.
+        int year = GetUInt16(pBuff);
+		pBuff += 2;
+        //Get month
+        int month = *pBuff++;
+        //Get day
+        int day = *pBuff++;
+        //Skip week day
+        pBuff++;
+		CGXDateTime dt(year, month, day, -1, -1, -1, -1);
+        dt.SetStatus((GXDLMS_CLOCK_STATUS) *pBuff++);
+        value = dt;
 	}
 	else if (Type == DLMS_DATA_TYPE_TIME)
 	{
-		dataSize = 7;
+		if (knownType)
+        {
+             //If there is not enought data available.
+            if (size < 4)
+            {
+                size = 0;
+				return ERROR_CODES_OUTOFMEMORY;
+            }
+        }
+        else
+        {
+             //If there is not enough data available.
+            ++pBuff; //Get count.
+			--size;
+            if (size < 4)
+            {
+                size = 0;
+				return ERROR_CODES_OUTOFMEMORY;
+            }
+        }
+        //Get time.
+        int hour = *pBuff++;
+        int minute = *pBuff++;
+        int second = *pBuff++;
+        int ms = *pBuff++;
+        if (ms != 0xFF && ms != 0)
+        {
+            ms *= 10;
+        }        
+        CGXDateTime dt(-1, -1, -1, hour, minute, second, ms);
+        dt.SetStatus((GXDLMS_CLOCK_STATUS) *pBuff++);
+        value = dt;
+		return ERROR_CODES_OK;
 	}
 	else
 	{
@@ -492,7 +673,50 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	
 	if (Type == DLMS_DATA_TYPE_STRING)
 	{
-		value.strVal.append((const char*) pBuff, dataSize);
+		bool octetString = false;
+        if (knownType)
+        {
+            //Check that this is not octet string.
+            for(int a = 0; a != dataSize; ++a)
+            {                            
+                if (pBuff[a] != 0 && pBuff[a] < 0x20)
+                {
+                    octetString = true;
+                    break;
+                }
+            }
+        }
+        if (octetString)
+        {
+			char tmp[4];			
+			for(int a = 0; a != dataSize; ++a)
+            {			
+				if (a != 0)
+				{
+					value.strVal.append(".", 1);
+				}
+				int val = pBuff[a];
+#if _MSC_VER > 1000
+				int ret = sprintf_s(tmp, 4, "%d", val);				
+#else
+				int ret = sprintf(tmp, "%d", val);				
+#endif				
+				if (ret == -1 || ret > 3)
+				{
+					return ERROR_CODES_INVALID_PARAMETER;
+				}
+				value.strVal.append(tmp, ret);
+			}
+        }
+        else
+        {
+			//Remove '\0' from string if used.
+            while (dataSize > 0 && pBuff[dataSize - 1] == 0)
+            {
+                --dataSize;
+            }
+            value.strVal.append((const char*) pBuff, dataSize);
+        }		
 	}
 	//Excample Logical name is octet string, so do not change to string...
 	else if (Type == DLMS_DATA_TYPE_OCTET_STRING)
@@ -513,171 +737,4 @@ bool CGXOBISTemplate::IsLogicalNameEmpty(unsigned char* pLN)
 {
 	const unsigned char EmptyLN[] = {0, 0, 0, 0, 0, 0};
 	return memcmp(pLN, EmptyLN, 6) == 0;
-}
-
-const char* CGXOBISTemplate::GetUnitAsString(int unit)
-{
-	switch(unit)
-	{
-		case 1:
-			return "Year";
-		break;
-		case 2:
-			return "Month";
-		break;
-		case 3:
-			return "Week";
-		break;
-		case 4:
-			return "Day";
-		break;
-		case 5:
-			return "Hour";
-		break;
-		case 6:
-			return "Minute";
-		break;
-		case 7:
-			return "Second";
-		break;
-		case 8:
-			return "Phase angle degree rad*180/p";
-		break;
-		case 9:
-			return "Temperature T degree centigrade";
-		break;
-		case 10:		
-			return "Local currency";
-		break;
-		case 11:
-			return "Length l meter m";		
-		break;
-		case 12:
-			return "Speed v m/s";		
-		break;
-		case 13:
-			return "Volume V m3";		
-		break;
-		case 14:
-			return "Corrected volume m3";		
-		break;
-		case 15:
-			return "Volume flux m3/60*60s";		
-		break;
-		case 16:
-			return "Corrected volume flux m3/60*60s";		
-		break;
-		case 17:
-			return "Volume flux m3/24*60*60s";		
-		break;
-		case 18:
-			return "Corrected volume flux m3/24*60*60s";		
-		break;
-		case 19:
-			return "Volume 10-3 m3";		
-		break;
-		case 20:
-			return "Mass m kilogram kg";		
-		break;
-		case 21:
-			return "Force F newton N";		
-		break;
-		case 22:
-			return "Energy newtonmeter J = Nm = Ws";		
-		break;
-		case 23:
-			return "Pressure p pascal N/m2";		
-		break;
-		case 24:
-			return "Pressure p bar 10-5 N/m2";		
-		break;
-		case 25:
-			return "Energy joule J = Nm = Ws";		
-		break;
-		case 26:
-			return "Thermal power J/60*60s";		
-		break;
-		case 27:
-			return "Active power P watt W = J/s";		
-		break;
-		case 28:
-			return "Apparent power S";		
-		break;
-		case 29:
-			return "Reactive power Q";		
-		break;
-		case 30:
-			return "Active energy W*60*60s";		
-		break;
-		case 31:
-			return "Apparent energy VA*60*60s";		
-		break;
-		case 32:
-			return "Reactive energy var*60*60s";			
-		break;
-		case 33:
-			return "Current I ampere A";			
-		break;
-		case 34:
-			return "Electrical charge Q coulomb C = As";			
-		break;
-		case 35:
-			return "Voltage";			
-		break;
-		case 36:
-			return "Electrical field strength E V/m";
-		break;
-		case 37:
-			return "Capacity C farad C/V = As/V";
-		break;
-		case 38:
-			return "Resistance R ohm = V/A";			
-		break;
-		case 39:
-			return "Resistivity";			
-		break;
-		case 40:
-			return "Magnetic flux F weber Wb = Vs";
-		break;
-		case 41:
-			return "Induction T tesla Wb/m2";			
-		break;
-		case 42:
-			return "Magnetic field strength H A/m";			
-		break;
-		case 43:
-			return "Inductivity L henry H = Wb/A";			
-		break;
-		case 44:
-			return "Frequency f";			
-		break;
-		case 45:
-			return "Active energy meter constant 1/Wh";			
-		break;
-		case 46:
-			return "Reactive energy meter constant";			
-		break;
-		case 47:
-			return "Apparent energy meter constant";			
-		break;
-		case 48:
-			return "V260*60s";			
-		break;
-		case 49:
-			return "A260*60s";			
-		break;
-		case 50:
-			return "Mass flux kg/s";			
-		break;
-		case 51:
-			return "Conductance siemens 1/ohm";			
-		break;
-		case 254 :
-			return "Other Unit";		
-		break;
-		case 255:
-			return "No Unit";		
-		break;
-	}
-	return "";
 }

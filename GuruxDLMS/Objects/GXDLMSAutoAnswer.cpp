@@ -35,7 +35,7 @@
 #include "../GXDLMSVariant.h"
 #include "../GXDLMSClient.h"
 #include "GXDLMSAutoAnswer.h"
-
+#include <sstream> 
 
 void CGXDLMSAutoAnswer::Init()
 {
@@ -141,6 +141,41 @@ int CGXDLMSAutoAnswer::GetAttributeCount()
 int CGXDLMSAutoAnswer::GetMethodCount()
 {
 	return 0;
+}
+
+void CGXDLMSAutoAnswer::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);	
+	values.push_back(CGXDLMSVariant(m_Mode).ToString());
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<pair< CGXDateTime, CGXDateTime> >::iterator it = m_ListeningWindow.begin(); it != m_ListeningWindow.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";			
+		}
+		empty = false;
+		string str = it->first.ToString();
+		sb.write(str.c_str(), str.size());
+		sb << " ";
+		str = it->second.ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());	
+	values.push_back(CGXDLMSVariant(m_Status).ToString());
+	values.push_back(CGXDLMSVariant(m_NumberOfCalls).ToString());
+	//Clean
+	sb.str(std::string());
+	sb << m_NumberOfRingsInListeningWindow;
+	sb << "/";
+	sb << m_NumberOfRingsOutListeningWindow;
+	values.push_back(sb.str());
 }
 
 void CGXDLMSAutoAnswer::GetAttributeIndexToRead(vector<int>& attributes)
@@ -322,8 +357,8 @@ int CGXDLMSAutoAnswer::SetValue(int index, CGXDLMSVariant& value)
 		m_NumberOfRingsInListeningWindow = m_NumberOfRingsOutListeningWindow = 0;
         if (value.vt != DLMS_DATA_TYPE_NONE)
         {
-            m_NumberOfRingsInListeningWindow = value.Arr[0].bVal;
-            m_NumberOfRingsOutListeningWindow = value.Arr[1].bVal;
+            m_NumberOfRingsInListeningWindow = value.Arr[0].ToInteger();
+            m_NumberOfRingsOutListeningWindow = value.Arr[1].ToInteger();
         }           
 		return ERROR_CODES_OK;
     }

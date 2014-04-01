@@ -36,6 +36,7 @@
 #include "../GXDLMSClient.h"
 #include "GXDLMSProfileGeneric.h"
 #include "../GXDLMSObjectFactory.h"
+#include <sstream> 
 
 void CGXDLMSProfileGeneric::Init()
 {
@@ -43,7 +44,7 @@ void CGXDLMSProfileGeneric::Init()
 	m_SortObjectDataIndex = 0;
 	m_SortObject = NULL;
 	m_CapturePeriod = 3600;
-	m_ProfileEntries = 1;
+	m_EntriesInUse = m_ProfileEntries = 0;	
 	m_SortMethod = GX_SORT_METHOD_FIFO;
 }
 
@@ -134,7 +135,6 @@ int CGXDLMSProfileGeneric::AddCaptureObject(CGXDLMSObject* pObj, int attributeIn
 		return ERROR_CODES_INVALID_PARAMETER;
     }
     CGXDLMSCaptureObject* pCO = new CGXDLMSCaptureObject(attributeIndex, dataIndex);
-	//std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> >
     m_CaptureObjects.push_back(std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*>(pObj, pCO));        
 	return ERROR_CODES_OK;        
 }
@@ -351,19 +351,25 @@ void CGXDLMSProfileGeneric::SetSortObject(CGXDLMSObject* value)
 /** 
  Entries (rows) in Use.
 */
-char CGXDLMSProfileGeneric::GetEntriesInUse()
+unsigned long CGXDLMSProfileGeneric::GetEntriesInUse()
 {
-    return m_Buffer.size();
+    return m_EntriesInUse;
+}
+
+void CGXDLMSProfileGeneric::SetEntriesInUse(unsigned long value)
+{
+	m_EntriesInUse = value;
 }
 
 /** 
  Maximum Entries (rows) count.
 */
-char CGXDLMSProfileGeneric::GetProfileEntries()
+unsigned long CGXDLMSProfileGeneric::GetProfileEntries()
 {
     return m_ProfileEntries;
 }
-void CGXDLMSProfileGeneric::SetProfileEntries(char value)
+
+void CGXDLMSProfileGeneric::SetProfileEntries(unsigned long value)
 {
     m_ProfileEntries = value;
 }
@@ -407,6 +413,55 @@ void CGXDLMSProfileGeneric::Reset()
 void CGXDLMSProfileGeneric::Capture()
 {
 	//TODO:
+}
+
+void CGXDLMSProfileGeneric::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	std::stringstream sb;
+	bool empty = true;	
+	for(vector< vector<CGXDLMSVariant> >::iterator row = m_Buffer.begin(); row != m_Buffer.end(); ++row)
+	{		
+		for(vector<CGXDLMSVariant>::iterator cell = row->begin(); cell != row->end(); ++cell)
+		{			
+			sb << cell->ToString();
+			sb << " | ";
+		}
+		sb << "\r\n";
+	}
+	values.push_back(sb.str());	
+	//Clear str.
+	sb.str(std::string());		
+	sb << '[';
+	empty = true;
+	for(vector<pair<CGXDLMSObject*, CGXDLMSCaptureObject*> >::iterator it = m_CaptureObjects.begin(); it != m_CaptureObjects.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = it->first->GetName().ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());	
+
+	values.push_back(CGXDLMSVariant(m_CapturePeriod).ToString());
+	values.push_back(CGXDLMSVariant(m_SortMethod).ToString());
+	if (m_SortObject == NULL)
+	{
+		values.push_back("");
+	}
+	else
+	{
+		values.push_back(m_SortObject->GetName().ToString());
+	}
+	values.push_back(CGXDLMSVariant(m_EntriesInUse).ToString());
+	values.push_back(CGXDLMSVariant(m_ProfileEntries).ToString());
 }
 
 void CGXDLMSProfileGeneric::GetAttributeIndexToRead(vector<int>& attributes)
@@ -578,7 +633,6 @@ int CGXDLMSProfileGeneric::SetValue(int index, CGXDLMSVariant& value)
 		if (value.vt != DLMS_DATA_TYPE_NONE)
         {
             vector<DLMS_DATA_TYPE> types;
-            int pos = -1;  
 			DLMS_DATA_TYPE type;
 			for (std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> >::iterator it = m_CaptureObjects.begin(); it != m_CaptureObjects.end(); ++it)                    
             {
@@ -587,9 +641,9 @@ int CGXDLMSProfileGeneric::SetValue(int index, CGXDLMSVariant& value)
 					return ret;
 				}
                 types.push_back(type);
-            } 
+            }
+			
 			for (std::vector<CGXDLMSVariant >::iterator row = value.Arr.begin(); row != value.Arr.end(); ++row)                    
-            //for(Object row : (Object[]) value)
             {
                 if ((*row).Arr.size() != m_CaptureObjects.size())
                 {
@@ -600,7 +654,7 @@ int CGXDLMSProfileGeneric::SetValue(int index, CGXDLMSVariant& value)
                 {
                     CGXDLMSVariant data = (*row).Arr[a];
                     DLMS_DATA_TYPE type = types[a];
-                    if (type != DLMS_DATA_TYPE_NONE && data.vt == DLMS_DATA_TYPE_ARRAY)
+                    if (type != DLMS_DATA_TYPE_NONE && data.vt == DLMS_DATA_TYPE_OCTET_STRING)
                     {
 						unsigned char* pBuff = &data.byteArr[0];
 						int size = data.byteArr.size();
@@ -609,20 +663,18 @@ int CGXDLMSProfileGeneric::SetValue(int index, CGXDLMSVariant& value)
 							return ret;
 						}
                     }
-					std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> item = m_CaptureObjects[pos];
-                    //AbstractMap.SimpleEntry<GXDLMSObject, GXDLMSCaptureObject> item = m_CaptureObjects.get(pos);
+					std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> item = m_CaptureObjects[a];
 					if (item.first->GetObjectType() == OBJECT_TYPE_REGISTER && item.second->GetAttributeIndex() == 2)
                     {
                         double scaler = ((CGXDLMSRegister*) item.first)->GetScaler();
                         if (scaler != 1)
                         {
-							//TODO: tarkista jos ei double.
-                            row[a] = data.dblVal * scaler;                                    
+                            row[a] = data.ToDouble() * scaler;                                    
                         }
                     }   
                 }
-                //TODO: m_Buffer.push_back(row);
-            }  
+				m_Buffer.push_back(row->Arr);
+            }  			
         }            
     }
     else if (index == 3)
@@ -688,12 +740,11 @@ int CGXDLMSProfileGeneric::SetValue(int index, CGXDLMSVariant& value)
     }
     else if (index == 7)
     {                
-        //Client can't set row count.
-        //TODO: throw new IllegalArgumentException("SetValue failed. Invalid attribute index.");
+        m_EntriesInUse = value.ToInteger();
     }
     else if (index == 8)
     {
-		m_ProfileEntries = value.ToInteger();                                    
+		m_ProfileEntries = value.ToInteger();
     }
     else
     {

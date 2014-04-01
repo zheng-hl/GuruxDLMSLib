@@ -125,6 +125,7 @@
     <ClCompile Include="GuruxDLMS\GXDateTime.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMS.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSClient.cpp" />
+    <ClCompile Include="GuruxDLMS\GXDLMSConverter.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSLNSettings.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSObjectFactory.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSServerBase.cpp" />
@@ -133,6 +134,8 @@
     <ClCompile Include="GuruxDLMS\GXOBISTemplate.cpp" />
     <ClCompile Include="GuruxDLMS\GXStandardObisCode.cpp" />
     <ClCompile Include="GuruxDLMS\GXStandardObisCodeCollection.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXApplicationContextName.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXAuthenticationMechanismName.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSActionItem.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSActionSchedule.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSActionSet.cpp" />
@@ -160,16 +163,21 @@
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSLimiter.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSMacAddressSetup.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSMBusClient.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMBusMasterPortSetup.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMessageHandler.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSModemConfiguration.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSModemInitialisation.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSMonitoredValue.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSObject.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSObjectCollection.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSObjectDefinition.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSPppSetup.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSPppSetupIPCPOption.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSPppSetupLcpOption.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSProfileGeneric.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPushObject.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPushSetup.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSQualityOfService.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSRegister.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSRegisterActivation.cpp" />
@@ -184,6 +192,8 @@
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSSpecialDaysTable.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSTcpUdpSetup.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSWeekProfile.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXSendDestinationAndMethod.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXxDLMSContextType.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GuruxDLMS\Enums.h" />
@@ -194,6 +204,7 @@
     <ClInclude Include="GuruxDLMS\GXDateTime.h" />
     <ClInclude Include="GuruxDLMS\GXDLMS.h" />
     <ClInclude Include="GuruxDLMS\GXDLMSClient.h" />
+    <ClInclude Include="GuruxDLMS\GXDLMSConverter.h" />
     <ClInclude Include="GuruxDLMS\GXDLMSLimits.h" />
     <ClInclude Include="GuruxDLMS\GXDLMSLNSettings.h" />
     <ClInclude Include="GuruxDLMS\GXDLMSObjectFactory.h" />
@@ -206,6 +217,8 @@
     <ClInclude Include="GuruxDLMS\GXUserInformation.h" />
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXAttributeCollection.h" />
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXDLMSAttribute.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXApplicationContextName.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXAuthenticationMechanismName.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSActionItem.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSActionSchedule.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSActionSet.h" />
@@ -233,20 +246,28 @@
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSLimiter.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSMacAddressSetup.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSMBusClient.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMBusMasterPortSetup.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMessageHandler.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSModemConfiguration.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSModemInitialisation.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSMonitoredValue.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSObject.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSObjectCollection.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSObjectDefinition.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSPppSetup.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPppSetupIPCPOption.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPppSetupLcpOption.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSProfileGeneric.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPushObject.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPushSetup.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSQualityOfService.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegister.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegisterActivation.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegisterMonitor.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSapAssignment.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSchedule.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSScriptAction.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSScriptTable.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSeasonProfile.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSecuritySetup.h" />
@@ -256,6 +277,8 @@
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSWeekProfile.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXObjectCollection.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXRegisterObject.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXSendDestinationAndMethod.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXxDLMSContextType.h" />
     <ClInclude Include="GuruxDLMS\Objects\IGXDLMSBase.h" />
   </ItemGroup>
   <ItemGroup>

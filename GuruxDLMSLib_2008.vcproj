@@ -161,6 +161,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\GXDLMSConverter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\GXDLMSLNSettings.cpp"
 				>
 			</File>
@@ -182,10 +186,6 @@
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\GXOBISTemplate.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GuruxDLMS\GXStandardObisCode.cpp"
 				>
 			</File>
 			<File
@@ -228,6 +228,10 @@
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\GXDLMSClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\GXDLMSConverter.h"
 				>
 			</File>
 			<File
@@ -292,10 +296,22 @@
 				RelativePath=".\GuruxDLMS\ManufacturerSettings\GXDLMSAttribute.h"
 				>
 			</File>
+			<File
+				RelativePath=".\GuruxDLMS\GXStandardObisCode.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Object Header Files"
 			>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXApplicationContextName.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXAuthenticationMechanismName.h"
+				>
+			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSActionItem.h"
 				>
@@ -405,7 +421,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMBusMasterPortSetup.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMessageHandler.h"
 				>
 			</File>
 			<File
@@ -429,11 +453,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSObjectDefinition.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSPppSetup.h"
 				>
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSProfileGeneric.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPushObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPushSetup.h"
 				>
 			</File>
 			<File
@@ -485,6 +521,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\Objects\GXSendDestinationAndMethod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXxDLMSContextType.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\Objects\IGXDLMSBase.h"
 				>
 			</File>
@@ -492,6 +536,14 @@
 		<Filter
 			Name="Object Source Files"
 			>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXApplicationContextName.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXAuthenticationMechanismName.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSActionItem.cpp"
 				>
@@ -601,7 +653,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMBusMasterPortSetup.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSMBusSlavePortSetup.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSMessageHandler.cpp"
 				>
 			</File>
 			<File
@@ -625,6 +685,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSObjectDefinition.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSPppSetup.cpp"
 				>
 			</File>
@@ -638,6 +702,14 @@
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSProfileGeneric.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPushObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXDLMSPushSetup.cpp"
 				>
 			</File>
 			<File
@@ -694,6 +766,14 @@
 			</File>
 			<File
 				RelativePath=".\GuruxDLMS\Objects\GXDLMSWeekProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXSendDestinationAndMethod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GuruxDLMS\Objects\GXxDLMSContextType.cpp"
 				>
 			</File>
 		</Filter>

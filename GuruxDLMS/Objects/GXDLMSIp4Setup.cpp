@@ -34,6 +34,7 @@
 
 #include "GXDLMSIp4Setup.h"
 #include "../GXDLMSClient.h"
+#include <sstream> 
 
 //Constructor.
 CGXDLMSIp4Setup::CGXDLMSIp4Setup() : CGXDLMSObject(OBJECT_TYPE_IP4_SETUP)
@@ -142,6 +143,55 @@ int CGXDLMSIp4Setup::GetAttributeCount()
 int CGXDLMSIp4Setup::GetMethodCount()
 {
 	return 3;
+}
+
+void CGXDLMSIp4Setup::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	//CGXDLMSVariant().ToString()
+	values.push_back(m_DataLinkLayerReference);
+	values.push_back(CGXDLMSVariant(m_IPAddress).ToString());
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<unsigned long>::iterator it = m_MulticastIPAddress.begin(); it != m_MulticastIPAddress.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = CGXDLMSVariant(*it).ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());		
+
+	//Clear str.
+	sb.str(std::string());		
+	sb << '[';
+	empty = true;
+	for(vector<CGXDLMSIp4SetupIpOption>::iterator it = m_IPOptions.begin(); it != m_IPOptions.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = it->ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());	
+	
+	values.push_back(CGXDLMSVariant(m_SubnetMask).ToString());
+	values.push_back(CGXDLMSVariant(m_GatewayIPAddress).ToString());
+	values.push_back(CGXDLMSVariant(m_UseDHCP).ToString());
+	values.push_back(CGXDLMSVariant(m_PrimaryDNSAddress).ToString());
+	values.push_back(CGXDLMSVariant(m_SecondaryDNSAddress).ToString());	
 }
 
 void CGXDLMSIp4Setup::GetAttributeIndexToRead(vector<int>& attributes)

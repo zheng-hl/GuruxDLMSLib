@@ -34,6 +34,8 @@
 
 #include "GXDLMSLimiter.h"
 #include "../GXDLMSClient.h"
+#include "GXDLMSActionSet.h"
+#include <sstream> 
 
 //Constructor.
 CGXDLMSLimiter::CGXDLMSLimiter() : CGXDLMSObject(OBJECT_TYPE_LIMITER)
@@ -194,6 +196,50 @@ int CGXDLMSLimiter::GetAttributeCount()
 int CGXDLMSLimiter::GetMethodCount()
 {
 	return 0;
+}
+
+void CGXDLMSLimiter::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	if (m_MonitoredValue != NULL)
+	{
+		values.push_back(m_MonitoredValue->GetName().ToString());
+	}
+	else
+	{
+		values.push_back("");
+	}
+	values.push_back(m_ThresholdActive.ToString());
+	values.push_back(m_ThresholdNormal.ToString());
+	values.push_back(m_ThresholdEmergency.ToString());
+	values.push_back(CGXDLMSVariant(m_MinOverThresholdDuration).ToString());
+	values.push_back(CGXDLMSVariant(m_MinUnderThresholdDuration).ToString());
+	values.push_back(m_EmergencyProfile.ToString());
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<int>::iterator it = m_EmergencyProfileGroupIDs.begin(); it != m_EmergencyProfileGroupIDs.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = CGXDLMSVariant(*it).ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());		
+	values.push_back(CGXDLMSVariant(m_EmergencyProfileActive).ToString());
+	
+	sb.str(std::string());
+	sb << m_ActionOverThreshold.ToString().c_str();
+	sb << ", ";
+	sb << m_ActionUnderThreshold.ToString().c_str();
+	values.push_back(sb.str());		
 }
 
 void CGXDLMSLimiter::GetAttributeIndexToRead(vector<int>& attributes)
@@ -468,7 +514,11 @@ int CGXDLMSLimiter::SetValue(int index, CGXDLMSVariant& value)
     }
     else if (index == 8)
     {
-        //EmergencyProfile = value;TODO:
+        m_EmergencyProfile.SetID(value.Arr[0].ToInteger());
+		CGXDLMSVariant tmp;
+		CGXDLMSClient::ChangeType(value.Arr[1].byteArr, DLMS_DATA_TYPE_DATETIME, tmp);
+		m_EmergencyProfile.SetActivationTime(tmp.dateTime);
+        m_EmergencyProfile.SetDuration(value.Arr[2].ToInteger());
     }
     else if (index == 9)
     {     

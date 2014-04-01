@@ -93,6 +93,17 @@ int CGXDLMSGPRSSetup::GetMethodCount()
 	return 0;
 }
 
+void CGXDLMSGPRSSetup::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	values.push_back(m_APN);
+	values.push_back(CGXDLMSVariant(m_PINCode).ToString());
+	values.push_back(m_DefaultQualityOfService.ToString() + " " + m_RequestedQualityOfService.ToString());
+}
+
 void CGXDLMSGPRSSetup::GetAttributeIndexToRead(vector<int>& attributes)
 {
 	//LN is static and read only once.
@@ -218,8 +229,9 @@ int CGXDLMSGPRSSetup::SetValue(int index, CGXDLMSVariant& value)
 			{
 				return ret;
 			}
-			m_APN = tmp.strVal;
+			m_APN = tmp.strVal;			
         }
+		value = m_APN;
     }
     else if (index == 3)
     {            

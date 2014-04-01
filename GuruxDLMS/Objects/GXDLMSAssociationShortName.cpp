@@ -122,6 +122,17 @@ void SetSecuritySetupReference(Object value)
 }
 */
 
+void CGXDLMSAssociationShortName::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	values.push_back(m_ObjectList.ToString());	
+	values.push_back(m_AccessRightsList.ToString());
+	values.push_back(m_SecuritySetupReference);
+}
+
 void CGXDLMSAssociationShortName::GetAttributeIndexToRead(vector<int>& attributes)
 {
 	//LN is static and read only once.

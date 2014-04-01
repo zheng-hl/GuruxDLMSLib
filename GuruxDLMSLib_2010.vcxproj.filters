@@ -187,6 +187,36 @@
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSWeekProfile.cpp">
       <Filter>Object Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXApplicationContextName.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXAuthenticationMechanismName.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMBusMasterPortSetup.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSMessageHandler.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSObjectDefinition.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPushObject.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSPushSetup.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXSendDestinationAndMethod.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXxDLMSContextType.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXAttributeCollection.h">
@@ -401,6 +431,45 @@
     </ClInclude>
     <ClInclude Include="GuruxDLMS\GXDLMSObjectFactory.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\GXDLMSConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXApplicationContextName.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXAuthenticationMechanismName.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMBusMasterPortSetup.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSMessageHandler.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSObjectDefinition.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPppSetupIPCPOption.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPppSetupLcpOption.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPushObject.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSPushSetup.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSScriptAction.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXSendDestinationAndMethod.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXxDLMSContextType.h">
+      <Filter>Object Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

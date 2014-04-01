@@ -35,6 +35,7 @@
 #include "../GXDLMSVariant.h"
 #include "../GXDLMSClient.h"
 #include "GXDLMSSapAssignment.h"
+#include <sstream> 
 
 /**  
  Constructor.
@@ -80,6 +81,31 @@ int CGXDLMSSapAssignment::GetAttributeCount()
 int CGXDLMSSapAssignment::GetMethodCount()
 {
 	return 1;
+}
+
+void CGXDLMSSapAssignment::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(std::map<int, basic_string<char> >::iterator it = m_SapAssignmentList.begin(); it != m_SapAssignmentList.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = CGXDLMSVariant((it->first)).ToString();
+		sb.write(str.c_str(), str.size());
+		sb << ", ";		
+		sb.write(it->second.c_str(), it->second.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());
 }
 
 void CGXDLMSSapAssignment::GetAttributeIndexToRead(vector<int>& attributes)
@@ -180,8 +206,7 @@ int CGXDLMSSapAssignment::SetValue(int index, CGXDLMSVariant& value)
             {
                 str = (*item).Arr[1].ToString();
             }            
-			m_SapAssignmentList[(*item).Arr[0].lVal] = str;
-            //m_SapAssignmentList.put(((Number) Array.get(item, 0)).intValue(), str);
+			m_SapAssignmentList[(*item).Arr[0].ToInteger()] = str;
         }                    
 		return ERROR_CODES_OK;
     }

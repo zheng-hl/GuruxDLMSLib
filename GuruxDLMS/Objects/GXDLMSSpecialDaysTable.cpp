@@ -35,6 +35,7 @@
 #include "../GXDLMSVariant.h"
 #include "../GXDLMSClient.h"
 #include "GXDLMSSpecialDaysTable.h"
+#include <sstream> 
 
 //Constructor.
 CGXDLMSSpecialDaysTable::CGXDLMSSpecialDaysTable() : CGXDLMSObject(OBJECT_TYPE_SPECIAL_DAYS_TABLE)
@@ -73,6 +74,29 @@ int CGXDLMSSpecialDaysTable::GetAttributeCount()
 int CGXDLMSSpecialDaysTable::GetMethodCount()
 {
 	return 0;
+}
+
+void CGXDLMSSpecialDaysTable::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln, str;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<CGXDLMSSpecialDay>::iterator it = m_Entries.begin(); it != m_Entries.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = it->ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());
 }
 
 void CGXDLMSSpecialDaysTable::GetAttributeIndexToRead(vector<int>& attributes)

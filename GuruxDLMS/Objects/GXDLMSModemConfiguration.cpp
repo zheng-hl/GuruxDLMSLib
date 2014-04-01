@@ -35,6 +35,8 @@
 #include "../GXDLMSVariant.h"
 #include "../GXDLMSClient.h"
 #include "GXDLMSModemConfiguration.h"
+#include "../GXDLMSConverter.h"
+#include <sstream> 
 
 void CGXDLMSModemConfiguration::Init()
 {
@@ -122,6 +124,47 @@ int CGXDLMSModemConfiguration::GetMethodCount()
 {
     return 0;
 }    
+
+void CGXDLMSModemConfiguration::GetValues(vector<string>& values)
+{
+	values.clear();
+	string ln;
+	GetLogicalName(ln);
+	values.push_back(ln);
+	values.push_back(CGXDLMSConverter::ToString(m_CommunicationSpeed));
+	std::stringstream sb;
+	sb << '[';
+	bool empty = true;
+	for(vector<CGXDLMSModemInitialisation>::iterator it = m_InitialisationStrings.begin(); it != m_InitialisationStrings.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		string str = it->ToString();
+		sb.write(str.c_str(), str.size());
+	}
+	sb << ']';
+	values.push_back(sb.str());		
+
+	//Clear str.
+	sb.str(std::string());		
+	sb << '[';
+	empty = true;
+	for(vector< basic_string<char> >::iterator it = m_ModemProfile.begin(); it != m_ModemProfile.end(); ++it)
+	{
+		if (!empty)
+		{
+			sb << ", ";
+		}
+		empty = false;
+		sb.write(it->c_str(), it->size());
+	}
+	sb << ']';
+	values.push_back(sb.str());		
+
+}
 
 void CGXDLMSModemConfiguration::GetAttributeIndexToRead(vector<int>& attributes)
 {

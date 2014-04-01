@@ -40,6 +40,8 @@
 #include "Objects/GXDLMSObject.h"
 #include "OBiscodes.h"
 #include "Objects/GXDLMSObject.h"
+#include "GXDLMSObjectFactory.h"
+#include <sstream> 
 
 CGXDLMSClient::CGXDLMSClient(bool UseLogicalNameReferencing, 
 				CGXDLMSVariant ClientID,
@@ -556,10 +558,14 @@ int CGXDLMSClient::ReadRowsByEntry(CGXDLMSVariant& Name, unsigned int Index, uns
 		return ret;
 	}
 	//Read all columns.
-	value = (unsigned short) 0;
-	if((ret = CGXOBISTemplate::SetData(data, value.vt, value)) != 0 ||
-		(ret = CGXOBISTemplate::SetData(data, value.vt, value)) != 0)
+	value = (unsigned short) 1;
+	if((ret = CGXOBISTemplate::SetData(data, value.vt, value)) != 0)
 	{		
+		return ret;
+	}
+	value = (unsigned short) 0;
+	if((ret = CGXOBISTemplate::SetData(data, value.vt, value)) != 0)
+	{
 		return ret;
 	}
 	DLMS_COMMAND cmd = m_base.m_UseLogicalNameReferencing ? DLMS_COMMAND_GET_REQUEST : DLMS_COMMAND_READ_REQUEST;
@@ -693,18 +699,39 @@ int CGXDLMSClient::CheckReplyErrors(unsigned char* SendData, int SendbuffSize, u
 		case 4: // Access Error : Device reports a undefined object
 			return ERROR_CODES_UNDEFINED_OBJ;
 		break;
-		case 5: // Access Error : Device reports a inconsistent Class or Object
+		case 9: // Access Error : Device reports a inconsistent Class or Object
 			return ERROR_CODES_INCONSISTENT_OBJ;
 		break;
-		case 6: // Access Error : Device reports a unavailable object
+		case 11: // Access Error : Device reports a unavailable object
 			return ERROR_CODES_UNAVAILABLE_OBJ;
 		break;
-		case 7: // Access Error : Device reports a unmatched type
+		case 12: // Access Error : Device reports a unmatched type
 			return ERROR_CODES_UNMATCH_TYPE;
 		break;
-		case 8: // Access Error : Device reports scope of access violated
+		case 13: // Access Error : Device reports scope of access violated
 			return ERROR_CODES_VIOLATED;
 		break;
+		case 14:   
+			return ERROR_CODES_BLOCK_UNAVAILABLE;
+			break;
+		case 15: 
+			return ERROR_CODES_READ_ABORTED;
+			break;
+		case 16: 
+			return ERROR_CODES_READ_IN_PROGRESS;
+			break;
+		case 17: 
+			return ERROR_CODES_WRITE_ABORTED;
+			break;
+		case 18: 
+			return ERROR_CODES_WRITE_IN_PROGRESS;
+			break;
+		case 19: 
+			return ERROR_CODES_BLOCK_NUMBER_INVALID;
+			break;
+		case 250: 
+			return ERROR_CODES_OTHER_REASON;
+			break;
 		default:			
 			//Unknown error.
 			return ERROR_CODES_UNKNOWN;
@@ -772,12 +799,23 @@ int CGXDLMSClient::IsReplyPacket(unsigned char* SendData, int SendbuffSize, unsi
 
 int CGXDLMSClient::GetValue(vector<unsigned char>& data, CGXDLMSVariant& value)
 {	
-	return GetValue(&data[0], data.size(), value);
+	value.Clear();
+	int size = data.size();
+	if (size != 0)
+	{		
+		return GetValue(&data[0], size, value);
+	}
+	return 0;
 }
 
 int CGXDLMSClient::GetValue(unsigned char* pBuff, int Size, CGXDLMSVariant& value)
 {	
-	return CGXOBISTemplate::GetData(pBuff, Size, DLMS_DATA_TYPE_NONE, value);
+	value.Clear();
+	if (Size != 0)
+	{
+		return CGXOBISTemplate::GetData(pBuff, Size, DLMS_DATA_TYPE_NONE, value);
+	}
+	return 0;
 }
 
 int CGXDLMSClient::GetValue(vector<unsigned char>& data, CGXDLMSObject* pObject, int index, CGXDLMSVariant& value)
@@ -811,7 +849,7 @@ int CGXDLMSClient::GetValue(unsigned char* pBuff, int Size, CGXDLMSObject* pObje
 	{
 		return ret;
 	}
-	if (value.vt == DLMS_DATA_TYPE_ARRAY)
+	if (value.vt == DLMS_DATA_TYPE_OCTET_STRING)
 	{
 		DLMS_DATA_TYPE type;
 		if ((ret = pObject->GetUIDataType(index, type)) != 0)
@@ -855,21 +893,28 @@ int CGXDLMSClient::GetDataType(unsigned char* pBuff, int Size, DLMS_DATA_TYPE& T
 	return CGXOBISTemplate::GetDataType(pBuff, Size, Type);
 }
 
+string CGXDLMSClient::ObjectTypeToString(OBJECT_TYPE type)
+{
+	return CGXDLMSObjectFactory::ObjectTypeToString(type);
+}
+
 
 void CGXDLMSClient::UpdateOBISCodes(CGXDLMSObjectCollection& objects)
-{                    
-    basic_string<char> str = OBIS_CODES1;        
-	str.append(OBIS_CODES2);
-	str.append(OBIS_CODES3);
-	str.append(OBIS_CODES4);
-	str.append(OBIS_CODES5);
-	str.append(OBIS_CODES6);
-	str.append(OBIS_CODES7);
-	str.append(OBIS_CODES8);
-	str.append(OBIS_CODES9);
-	str.append(OBIS_CODES10);
-	str.append(OBIS_CODES11);
+{           
+	std::stringstream sb;
+	sb << OBIS_CODES1;
+	sb << OBIS_CODES2;
+	sb << OBIS_CODES3;
+	sb << OBIS_CODES4;
+	sb << OBIS_CODES5;
+	sb << OBIS_CODES6;
+	sb << OBIS_CODES7;
+	sb << OBIS_CODES8;
+	sb << OBIS_CODES9;
+	sb << OBIS_CODES10;
+	sb << OBIS_CODES11;
     CGXStandardObisCodeCollection codes;
+    string str = sb.str();
 	vector< basic_string<char> > rows = GXHelpers::Split(str, "\r\n", true);
 	int row = 0;
 	basic_string<char> last;
@@ -946,6 +991,11 @@ void CGXDLMSClient::UpdateOBISCodes(CGXDLMSObjectCollection& objects)
                 else if (CGXStandardObisCodeCollection::EqualsMask("1.0-64.0.9.2.255", ln))
                 {
                     code.SetDataType("26");
+                }
+				//Active firmware identifier
+				else if (CGXStandardObisCodeCollection::EqualsMask("1.0.0.2.0.255", ln))
+                {
+                    code.SetDataType("10");
                 }
             }
             if (code.GetDataType() != "*" && 

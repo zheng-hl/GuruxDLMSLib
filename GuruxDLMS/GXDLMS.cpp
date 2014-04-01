@@ -405,14 +405,14 @@ int CGXDLMS::GetLNData(unsigned char* pBuff, int dataSize, int& index, int* pErr
             }
             if (AttributeID == 0x01 && Priority != 0)
             {
-				if (pError != NULL)
-				{
-					*pError = pBuff[index++];
-				}
-                if (dataSize - 1 < index)
+				if (dataSize - 1 < index)
                 {
                     return ERROR_CODES_OUTOFMEMORY;
                 }
+				if (pError != NULL)
+				{
+					*pError = pBuff[index++];
+				}                
             }
             else
             {
@@ -1128,16 +1128,22 @@ int CGXDLMS::SplitToBlocks(vector<unsigned char>& Data, DLMS_COMMAND Cmd, vector
     //If LN           
     //Split to Blocks.
     unsigned int blockIndex = 0;
+	bool multibleFrames = false;
     do
     {
 		int packCount = Packets.size();
         SplitToFrames(Data, ++blockIndex, index, m_MaxReceivePDUSize, Cmd, Packets);
         if (m_InterfaceType == GXDLMS_INTERFACETYPE_GENERAL && (Packets.size() - packCount) != 1)
         {
+			multibleFrames = true;
             m_ExpectedFrame += 3;
         }
     }
     while (index < (Data.size() - 1));
+	if (multibleFrames)
+    {
+        m_ExpectedFrame -= 3;
+    }
 	return ERROR_CODES_OK;
 }
 
@@ -1224,7 +1230,11 @@ int CGXDLMS::GetActionInfo(OBJECT_TYPE objectType, int& value, int& count)
         case OBJECT_TYPE_TUNNEL:
         case OBJECT_TYPE_UTILITY_TABLES:
             return ERROR_CODES_INVALID_PARAMETER;
-        case OBJECT_TYPE_ACTIVITY_CALENDAR:
+		case OBJECT_TYPE_IMAGE_TRANSFER:
+            value = 0x40;
+            count = 4;
+            break;
+		case OBJECT_TYPE_ACTIVITY_CALENDAR:
             value = 0x50;
             count = 1;
             break;
