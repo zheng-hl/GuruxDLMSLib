@@ -261,10 +261,12 @@ int CGXDLMS::CheckLLCBytes(unsigned char* pBuff, int& pos, int length)
 /// <summary>
 /// Reserved for internal use.
 /// </summary>
-int CGXDLMS::GenerateMessage(CGXDLMSVariant& name, int ParameterCount, vector<unsigned char>& data, OBJECT_TYPE interfaceClass, int AttributeOrdinal, DLMS_COMMAND cmd, vector< vector<unsigned char> >& Packets)
+int CGXDLMS::GenerateMessage(CGXDLMSVariant& name, vector<unsigned char>& data, OBJECT_TYPE interfaceClass, int AttributeOrdinal, DLMS_COMMAND cmd, vector< vector<unsigned char> >& Packets)
 {
-    CGXDLMSVariant tmp = m_Limits.GetMaxInfoRX();
-	tmp.ChangeType(DLMS_DATA_TYPE_INT32);
+    if (m_Limits.GetMaxInfoRX().ToInteger() == 0)
+	{
+		return ERROR_CODES_INVALID_PARAMETER;
+	}
     std::vector<unsigned char> buff(0, 20 + data.size());
     if (m_UseLogicalNameReferencing)
     {
@@ -300,18 +302,22 @@ int CGXDLMS::GenerateMessage(CGXDLMSVariant& name, int ParameterCount, vector<un
     }
     else
     {
-        //Set read or write tag.
-        buff.push_back(cmd);
-		buff.push_back(1);        
+		buff.push_back(1);
         if (cmd == DLMS_COMMAND_READ_RESPONSE || cmd == DLMS_COMMAND_WRITE_RESPONSE)
         {
             buff.push_back(0x0);
         }
         else
         {
-            buff.push_back(ParameterCount);
-			name.ChangeType(DLMS_DATA_TYPE_UINT32);
-			unsigned short base_address = name.uiVal;
+			if (data.size() == 0)
+            {
+                buff.push_back(2);
+            }
+            else //if Parameterised Access
+            {
+                buff.push_back(4);
+            }  
+			unsigned short base_address = name.ToInteger();
             if (cmd == DLMS_COMMAND_METHOD_REQUEST)
             {
                 base_address += (unsigned short)AttributeOrdinal;
@@ -389,6 +395,15 @@ int CGXDLMS::GetLNData(unsigned char* pBuff, int dataSize, int& index, int* pErr
     if (m_Server && AttributeID == 0x2)
     {
         MoreData = GXDLMS_DATA_REQUEST_TYPES_BLOCK;
+    }
+	else if (cmd == DLMS_COMMAND_SET_REQUEST)
+    {
+		MoreData = GXDLMS_DATA_REQUEST_TYPES_NONE;
+    }
+	else if (cmd == DLMS_COMMAND_SET_RESPONSE || 
+			cmd == DLMS_COMMAND_METHOD_RESPONSE)
+    {
+        *pError = pBuff[index++];
     }
     else
     {
@@ -584,8 +599,8 @@ int CGXDLMS::GetDataFromHDLCFrame(unsigned char* pBuff, int dataSize, unsigned c
 			cmd = DLMS_COMMAND_REJECTED;
 			return ERROR_CODES_OK;
 		}
-		 if (FrameType == DLMS_COMMAND_SNRM ||
-            FrameType == DLMS_COMMAND_DISCONNECT_REQUEST)
+		 if (FrameType == DLMS_FRAME_TYPE_SNRM ||
+            FrameType == DLMS_FRAME_TYPE_DISCONNECT)
         {
             //Check that CRC match.
             int crc = CountCRC(pBuff, PacketStartID + 1, pos1 - PacketStartID - 1);                                        
@@ -593,12 +608,12 @@ int CGXDLMS::GetDataFromHDLCFrame(unsigned char* pBuff, int dataSize, unsigned c
             {
                 return ERROR_CODES_WRONG_CRC;
             }
-            if (FrameType == DLMS_COMMAND_SNRM)
+            if (FrameType == DLMS_FRAME_TYPE_SNRM)
             {
                 cmd = DLMS_COMMAND_SNRM;
                 return ERROR_CODES_OK;
             }
-            if (FrameType == DLMS_COMMAND_DISCONNECT_REQUEST)
+            if (FrameType == DLMS_FRAME_TYPE_DISCONNECT)
             {
                 cmd = DLMS_COMMAND_DISCONNECT_REQUEST;
                 return ERROR_CODES_OK;
@@ -1022,10 +1037,11 @@ int CGXDLMS::ParseLNObjects(unsigned char* pBuff, int len, CGXDLMSObjectCollecti
 	return 0;
 }
 
-int CGXDLMS::SplitToFrames(vector<unsigned char>& Data, unsigned int blockIndex, unsigned int& index, unsigned int count, DLMS_COMMAND Cmd, vector< vector<unsigned char> >& Packets)
+int CGXDLMS::SplitToFrames(vector<unsigned char>& Data, unsigned int blockIndex, unsigned int& index, unsigned int count, DLMS_COMMAND Cmd, int resultChoice, vector< vector<unsigned char> >& Packets)
 {    
 	vector<unsigned char> tmp(0, count + 13);
-    if (m_InterfaceType == GXDLMS_INTERFACETYPE_GENERAL)
+    if (m_InterfaceType == GXDLMS_INTERFACETYPE_GENERAL &&
+		m_FrameSequence != -1)
     {
         if (m_Server)
         {
@@ -1043,9 +1059,9 @@ int CGXDLMS::SplitToFrames(vector<unsigned char>& Data, unsigned int blockIndex,
 		tmp.push_back(Cmd);
 		tmp.push_back(moreBlocks ? 2 : 1);
 		tmp.push_back(0x81);
-        if (m_Server)
+		if (m_Server)
         {
-			tmp.push_back(0x0); // Get-Data-Result choice data
+            tmp.push_back(resultChoice); // Get-Data-Result choice data
         }
         if (moreBlocks)
         {
@@ -1054,6 +1070,10 @@ int CGXDLMS::SplitToFrames(vector<unsigned char>& Data, unsigned int blockIndex,
 			CGXOBISTemplate::SetObjectCount(count, tmp);
         }
     }    
+	else if (Cmd != DLMS_COMMAND_NONE && !m_UseLogicalNameReferencing)
+    {
+        tmp.push_back(Cmd);
+    }
     unsigned int dataSize;
     if (m_InterfaceType == GXDLMS_INTERFACETYPE_NET)
     {
@@ -1123,16 +1143,20 @@ int CGXDLMS::SplitToBlocks(vector<unsigned char>& Data, DLMS_COMMAND Cmd, vector
     unsigned int index = 0;
     if (!m_UseLogicalNameReferencing)//SN
     {                
-        return SplitToFrames(Data, 0, index, Data.size(), Cmd, Packets);
+        return SplitToFrames(Data, 0, index, Data.size(), Cmd, 0, Packets);
     }     
     //If LN           
     //Split to Blocks.
     unsigned int blockIndex = 0;
+	int ret;
 	bool multibleFrames = false;
     do
     {
 		int packCount = Packets.size();
-        SplitToFrames(Data, ++blockIndex, index, m_MaxReceivePDUSize, Cmd, Packets);
+        if ((ret = SplitToFrames(Data, ++blockIndex, index, m_MaxReceivePDUSize, Cmd, 0, Packets)) != 0)
+		{
+			return ret;
+		}
         if (m_InterfaceType == GXDLMS_INTERFACETYPE_GENERAL && (Packets.size() - packCount) != 1)
         {
 			multibleFrames = true;

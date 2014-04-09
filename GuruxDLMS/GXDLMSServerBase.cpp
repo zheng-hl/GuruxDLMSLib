@@ -397,7 +397,7 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
     }
 	m_FrameIndex = 0;
 	m_SendData.clear();	
-	CGXDLMSVariant name;
+	CGXDLMSVariant names;
 	int index;
     if (cmd == DLMS_COMMAND_SNRM)
     {
@@ -417,53 +417,97 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
         GenerateDisconnectRequest(m_SendData);
         return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
     }
-	else if (cmd == DLMS_COMMAND_SET_REQUEST ||
-				cmd == DLMS_COMMAND_WRITE_REQUEST)
+	else if (cmd == DLMS_COMMAND_WRITE_REQUEST)
     {
 		printf("CGXDLMSServerBase::HandleRequest::Write.\r\n");
 		OBJECT_TYPE type;
-		unsigned char* pParameter = NULL;
-		int ParameterSize;
-        GetCommand(allData, DataSize, type, name, index, pParameter, ParameterSize);
-		if (cmd == DLMS_COMMAND_SET_REQUEST && GetUseLogicalNameReferencing())
+		CGXDLMSVariant value;
+		int selector;
+        GetCommand(cmd, allData, DataSize, type, names, index, selector, value);
+		for(std::vector<CGXDLMSVariant>::iterator name = names.Arr.begin(); name != names.Arr.end(); ++name)
 		{
-			printf("Reading %s, attribute index %d\r\n", name.strVal.c_str(), index);
-			pItem = m_Items.FindByLN(type, name.ToString());
-		}
-		else if (cmd == DLMS_COMMAND_WRITE_REQUEST && !GetUseLogicalNameReferencing())
-		{
-			name.ChangeType(DLMS_DATA_TYPE_UINT16);
-			unsigned short sn = name.uiVal;	
+			pItem = NULL;
+			unsigned short sn = name->ToInteger();	
 			for(std::map<unsigned short, CGXDLMSObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
 			{
-				if (it->first > sn)
+				int aCnt = it->second->GetAttributeCount();
+				if (sn >= it->first && sn <= (it->first + (8 * aCnt)))
 				{
-					break;
-				}
-				pItem = it->second;
-			}        
-			index = ((sn - pItem->GetShortName()) / 8) + 1;
-			printf("Reading %x, attribute index %d", pItem->GetShortName(), index);
-		}
-		else
-		{
-			//Return HW error.
-			ServerReportError(1, 5, 3, m_SendData);
-			return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
-		}
-        if (pItem != NULL)
-        {
-			CGXDLMSVariant value;
-			DLMS_DATA_TYPE dt = DLMS_DATA_TYPE_NONE;
-			if (ParameterSize != 0)
-			{
-				if (CGXOBISTemplate::GetData(pParameter, ParameterSize, dt, value) != 0)
-				{
-					//Return HW error.
-					ServerReportError(1, 5, 3, m_SendData);
-					return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+					pItem = it->second;
+					index = ((sn - pItem->GetShortName()) / 8) + 1;                        
+					//If write is denied.
+					ACCESSMODE acc = pItem->GetAccess(index);
+					if (acc == ACCESSMODE_NONE || acc == ACCESSMODE_READ ||
+						acc == ACCESSMODE_AUTHENTICATED_READ)
+					{
+						//Return Read/Write error.
+						ServerReportError(cmd, 3, m_SendData);
+						return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+					}
+					DLMS_DATA_TYPE dt = DLMS_DATA_TYPE_NONE;
+					if (value.vt == DLMS_DATA_TYPE_OCTET_STRING)
+					{
+						pItem->GetUIDataType(index, dt);
+						if (dt != DLMS_DATA_TYPE_NONE)
+						{
+							if (value.ChangeType(dt) != 0)
+							{
+								//Return HW error.
+								ServerReportError(cmd, 1, m_SendData);
+								return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+							}
+						}
+					}
+					ret = OnWrite(pItem, index, selector, value);
+					if (ret == ERROR_CODES_OK)
+					{
+						if (Acknowledge(DLMS_COMMAND_METHOD_RESPONSE, 0, m_SendData) == ERROR_CODES_OK)
+						{
+							return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+						}
+					}
+					if (ret == ERROR_CODES_FALSE)
+					{
+						if (pItem->SetValue(index, value) == ERROR_CODES_OK)
+						{
+							if (Acknowledge(GetUseLogicalNameReferencing() ? DLMS_COMMAND_SET_RESPONSE : DLMS_COMMAND_WRITE_RESPONSE, 0, m_SendData) == ERROR_CODES_OK)
+							{
+								return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+							}
+						}
+					}
+					//Error is handled later.
 				}
 			}
+			if (pItem == NULL)
+			{
+				//Return Read/Write error.
+				ServerReportError(cmd, 3, m_SendData);
+				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+			}
+		}        
+	}
+	else if (cmd == DLMS_COMMAND_SET_REQUEST)
+    {
+		printf("CGXDLMSServerBase::HandleRequest::Set\r\n");
+		OBJECT_TYPE type;
+		CGXDLMSVariant value;
+		int selector;
+        GetCommand(cmd, allData, DataSize, type, names, index, selector, value);
+		printf("Reading %s, attribute index %d\r\n", names.Arr[0].strVal.c_str(), index);
+		pItem = m_Items.FindByLN(type, names.Arr[0].ToString());
+        if (pItem != NULL)
+        {
+			//If write is denied.
+            ACCESSMODE acc = pItem->GetAccess(index);
+			if (acc == ACCESSMODE_NONE || acc == ACCESSMODE_READ ||
+				acc == ACCESSMODE_AUTHENTICATED_READ)
+            {
+                //Return Read/Write error.
+				ServerReportError(cmd, 3, m_SendData);
+				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+            }
+			DLMS_DATA_TYPE dt = DLMS_DATA_TYPE_NONE;
             if (value.vt == DLMS_DATA_TYPE_OCTET_STRING)
             {
                 pItem->GetUIDataType(index, dt);
@@ -472,12 +516,12 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 					if (value.ChangeType(dt) != 0)
 					{
 						//Return HW error.
-						ServerReportError(1, 5, 3, m_SendData);
+						ServerReportError(cmd, 1, m_SendData);
 						return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
 					}
                 }
             }
-			ret = OnWrite(pItem, index, value);
+			ret = OnWrite(pItem, index, selector, value);
             if (ret == ERROR_CODES_OK)
 			{
 				if (Acknowledge(DLMS_COMMAND_METHOD_RESPONSE, 0, m_SendData) == ERROR_CODES_OK)
@@ -487,7 +531,6 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 			}
 			if (ret == ERROR_CODES_FALSE)
 			{
-				/* TODO:
 				if (pItem->SetValue(index, value) == ERROR_CODES_OK)
 				{
 					if (Acknowledge(GetUseLogicalNameReferencing() ? DLMS_COMMAND_SET_RESPONSE : DLMS_COMMAND_WRITE_RESPONSE, 0, m_SendData) == ERROR_CODES_OK)
@@ -495,104 +538,243 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 						return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
 					}
 				}
-				*/
 			}
 			//Error is handled later.
         }
 	}
-	else if (cmd == DLMS_COMMAND_GET_REQUEST || cmd == DLMS_COMMAND_READ_REQUEST)
+	else if (cmd == DLMS_COMMAND_READ_REQUEST)
 	{
 		OBJECT_TYPE type;
-		unsigned char* pParameter = NULL;
-		int ParameterSize;		
-		GetCommand(allData, DataSize, type, name, index, pParameter, ParameterSize);	
-		if (cmd == DLMS_COMMAND_GET_REQUEST && GetUseLogicalNameReferencing())
+		CGXDLMSVariant value;
+		int selector;
+		if (GetCommand(cmd, allData, DataSize, type, names, index, selector, value) != 0)
 		{
-			printf("CGXDLMSServerBase::HandleRequest::Get\r\n");
-			printf("Reading %s, attribute index %d\r\n", name.strVal.c_str(), index);
-			pItem = m_Items.FindByLN(type, name.ToString());
+			//Return Read/Write error.
+			ServerReportError(cmd, 3, m_SendData);
+			return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
 		}
-		else if (cmd == DLMS_COMMAND_READ_REQUEST && !GetUseLogicalNameReferencing())
+		CGXDLMSVariant values;
+		for(std::vector<CGXDLMSVariant>::iterator name = names.Arr.begin(); name != names.Arr.end(); ++name)
 		{
-			printf("CGXDLMSServerBase::HandleRequest::Read\r\n");
-			name.ChangeType(DLMS_DATA_TYPE_UINT16);
-			unsigned short sn = name.uiVal;	
+			pItem = NULL;
+			int sn = name->ToInteger();
 			for(std::map<unsigned short, CGXDLMSObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
 			{
-				if (it->first > sn)
+				int aCnt = it->second->GetAttributeCount();
+				//If read.
+				if (sn >= it->first && sn <= (it->first + (8 * aCnt)))
 				{
-					break;
+					pItem = it->second;
+					index = ((sn - pItem->GetShortName()) / 8) + 1;                        
+					//If write is denied.
+					ACCESSMODE acc = pItem->GetAccess(index);
+					if (acc == ACCESSMODE_NONE || acc == ACCESSMODE_WRITE ||
+						acc == ACCESSMODE_AUTHENTICATED_WRITE)
+					{
+						//Return Read/Write error.
+						ServerReportError(cmd, 3, m_SendData);
+						return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+					}
+					DLMS_DATA_TYPE tp = DLMS_DATA_TYPE_NONE;
+					if ((ret = OnRead(pItem, index, value, tp)) == ERROR_CODES_OK)
+					{
+						if (tp == DLMS_DATA_TYPE_NONE)
+						{
+							tp = value.vt;
+						}
+						if ((ret = ReadReply(*name, type, index, value, tp, m_SendData)) == 0)
+						{
+							return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+						}
+					}
+					if (ret != ERROR_CODES_FALSE)
+					{
+						printf("OnRead failed.\r\n");
+						//Return HW error.
+						ServerReportError(cmd, 1, m_SendData);
+						return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+					}
+					if (names.Arr.size() == 1)
+					{							
+						if (GetValue(pItem, index, selector, value, m_SendData) == 0)
+						{
+							return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+						}
+					}
+					else
+					{
+						CGXDLMSVariant value, tmp;	
+						IGXDLMSBase* pTmp = dynamic_cast<IGXDLMSBase*>(pItem);
+						int ret = pTmp->GetValue(index, selector, value, tmp);
+						if (ret != ERROR_CODES_OK)
+						{
+							printf("GetValue failed with error code %d\r\n", ret);
+							//Return HW error.
+							return ERROR_CODES_INVALID_PARAMETER;
+						}
+						DLMS_DATA_TYPE type = DLMS_DATA_TYPE_NONE;	
+						if (pItem->GetDataType(index, type) != ERROR_CODES_OK)
+						{
+							printf("GetDataType failed with error code %d\r\n", ret);
+							//Return HW error.
+							return ERROR_CODES_INVALID_PARAMETER;
+						}
+						if (type == DLMS_DATA_TYPE_NONE)
+						{
+							if (type == DLMS_DATA_TYPE_NONE)
+							{
+								type = tmp.vt;
+							}
+						}
+						if (type != DLMS_DATA_TYPE_NONE && type != DLMS_DATA_TYPE_ARRAY)
+						{
+							if ((ret = tmp.ChangeType(type)) != ERROR_CODES_OK)
+							{
+								return ret;
+							}
+						}
+						values.vt = DLMS_DATA_TYPE_ARRAY;
+						values.Arr.push_back(tmp);
+						break;
+					}			
 				}
-				pItem = it->second;
-			}        
-			index = ((sn - pItem->GetShortName()) / 8) + 1;
-			printf("Reading %x, attribute index %d", pItem->GetShortName(), index);	
-		}
-		if (pItem != NULL)
-		{
-			CGXDLMSVariant value;
-			DLMS_DATA_TYPE tp = DLMS_DATA_TYPE_NONE;
-			if ((ret = OnRead(pItem, index, value, tp)) == ERROR_CODES_OK)
+				//If action.
+				else if (sn >= it->first + aCnt && it->second->GetMethodCount() != 0)
+				{
+					//Convert DLMS data to object type.
+					int value2, count;
+					CGXDLMS::GetActionInfo(it->second->GetObjectType(), value2, count);
+					if (sn <= it->first + value2 + (8 * count))//If action
+					{
+						pItem = it->second;
+						index = ((sn - pItem->GetShortName() - value2) / 8) + 1;
+						if ((ret = OnAction(pItem, index, value)) == ERROR_CODES_OK)
+						{
+							if (Acknowledge(DLMS_COMMAND_READ_RESPONSE, 0, m_SendData) == ERROR_CODES_OK)
+							{
+								return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+							}
+						}
+						if (ret == ERROR_CODES_FALSE)
+						{
+							IGXDLMSBase* pTmp = (IGXDLMSBase*) pItem;
+							if (pTmp->Invoke(index, value) == ERROR_CODES_OK)
+							{
+								if (Acknowledge(DLMS_COMMAND_READ_RESPONSE, 0, m_SendData) == ERROR_CODES_OK)
+								{
+									return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+								}
+							}
+						}					
+					}
+				}
+			}
+			if (pItem == NULL)
 			{
-				if (tp == DLMS_DATA_TYPE_NONE)
+				//Return Read/Write error.
+				ServerReportError(cmd, 3, m_SendData);
+				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+			}			
+		}
+		if (values.Arr.size() != 0)
+		{
+			int ret;
+			vector<unsigned char> buff;
+			buff.push_back(values.Arr.size());
+			for(std::vector<CGXDLMSVariant>::iterator it = values.Arr.begin(); it != values.Arr.end(); ++it)
+			{
+				buff.push_back(0);//Status.
+				if ((ret = CGXOBISTemplate::SetData(buff, it->vt, *it)) != 0)
 				{
-					tp = value.vt;
+					return ret;
 				}
-				if ((ret = ReadReply(name, type, index, value, tp, m_SendData)) == 0)
+			}
+			value = buff;
+			CGXDLMSVariant null;
+			if (ReadReply(null, OBJECT_TYPE_NONE, 0, value, DLMS_DATA_TYPE_OCTET_STRING, m_SendData) != 0)
+			{
+				//Return HW error.
+				ServerReportError(cmd, 1, m_SendData);
+				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+			}
+			return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+		}
+	}
+	else if (cmd == DLMS_COMMAND_GET_REQUEST)
+	{
+		OBJECT_TYPE type;
+		CGXDLMSVariant value;
+		int selector;
+		if (GetCommand(cmd, allData, DataSize, type, names, index, selector, value) != 0)
+		{
+			//Return Read/Write error.
+			ServerReportError(cmd, 3, m_SendData);
+			return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+		}
+		for(std::vector<CGXDLMSVariant>::iterator name = names.Arr.begin(); name != names.Arr.end(); ++name)
+		{
+			pItem = NULL;
+			printf("Reading %s, attribute index %d\r\n", name->strVal.c_str(), index);
+			pItem = m_Items.FindByLN(type, name->ToString());
+			if (pItem != NULL)
+			{
+				//If write is denied.
+				ACCESSMODE acc = pItem->GetAccess(index);
+				if (acc == ACCESSMODE_NONE || acc == ACCESSMODE_WRITE ||
+					acc == ACCESSMODE_AUTHENTICATED_WRITE)
+				{
+					//Return Read/Write error.
+					ServerReportError(cmd, 3, m_SendData);
+					return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+				}
+				DLMS_DATA_TYPE tp = DLMS_DATA_TYPE_NONE;
+				if ((ret = OnRead(pItem, index, value, tp)) == ERROR_CODES_OK)
+				{
+					if (tp == DLMS_DATA_TYPE_NONE)
+					{
+						tp = value.vt;
+					}
+					if ((ret = ReadReply(*name, type, index, value, tp, m_SendData)) == 0)
+					{
+						return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+					}
+				}
+				if (ret != ERROR_CODES_FALSE)
+				{
+					printf("OnRead failed.\r\n");
+					//Return HW error.
+					ServerReportError(cmd, 1, m_SendData);
+					return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+				}
+				if (GetValue(pItem, index, selector, value, m_SendData) == 0)
 				{
 					return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
 				}
 			}
-			if (ret != ERROR_CODES_FALSE)
+			else
 			{
-				printf("OnRead failed.\r\n");
-				//Return HW error.
-				ServerReportError(1, 5, 3, m_SendData);
-				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
-			}
-			if (GetValue(pItem, index, pParameter, ParameterSize, m_SendData) == 0)
-			{
+				//Return Read/Write error.
+				ServerReportError(cmd, 3, m_SendData);
 				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
 			}
 		}
-		else
-		{
-    		printf("Reading Failed %s, attribute index %d is unknown.\r\n", name.strVal.c_str(), index);
-		}		
 	}
 	else if (cmd == DLMS_COMMAND_METHOD_REQUEST)
 	{
 		OBJECT_TYPE type;
-		unsigned char* pParameter = NULL;
-		int ParameterSize;		
-        GetCommand(allData, DataSize, type, name, index, pParameter, ParameterSize);
 		CGXDLMSVariant value;
-		DLMS_DATA_TYPE dt = DLMS_DATA_TYPE_NONE;
-		int ret = CGXOBISTemplate::GetData(pParameter, ParameterSize, dt, value);
-		if (ret == ERROR_CODES_OK)
+		int selector;
+        if (GetCommand(cmd, allData, DataSize, type, names, index, selector, value) != 0)
 		{
-			if (GetUseLogicalNameReferencing())
-			{
-				printf("Action %s, attribute index %d\r\n", name.strVal.c_str(), index);
-				pItem = m_Items.FindByLN(type, name.ToString());
-			}
-			else
-			{
-				name.ChangeType(DLMS_DATA_TYPE_UINT16);
-				unsigned short sn = name.uiVal;	
-				for(std::map<unsigned short, CGXDLMSObject*>::iterator it = m_SortedItems.begin(); it != m_SortedItems.end(); ++it)
-				{
-					if (it->first > sn)
-					{
-						break;
-					}
-					pItem = it->second;
-				}        				
-				int value, count;
-				CGXDLMS::GetActionInfo(pItem->GetObjectType(), value, count);
-				index = ((sn - pItem->GetShortName()) / value);
-				printf("Action %x, attribute index %d", pItem->GetShortName(), index);
-			}
+			//Return Read/Write error.
+			ServerReportError(cmd, 3, m_SendData);
+			return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+		}		
+		for(std::vector<CGXDLMSVariant>::iterator name = names.Arr.begin(); name != names.Arr.end(); ++name)
+		{
+			pItem = NULL;
+			printf("Action %s, attribute index %d\r\n", name->strVal.c_str(), index);
+			pItem = m_Items.FindByLN(type, name->ToString());
 			if (pItem != NULL)
 			{
 				if ((ret = OnAction(pItem, index, value)) == ERROR_CODES_OK)
@@ -613,12 +795,17 @@ int CGXDLMSServerBase::HandleRequest(unsigned char* pData, int size, unsigned ch
 						}
 					}
 				}
-				//Error is handled later.
 			}
-		}
+			else
+			{
+				//Return Read/Write error.
+				ServerReportError(cmd, 3, m_SendData);
+				return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
+			}
+		}		
 	}
 	//Return HW error.
-    ServerReportError(1, 5, 3, m_SendData);
+    ServerReportError(cmd, 1, m_SendData);
     return SendData(m_SendData, m_FrameIndex, pReply, ReplySize);
 }
 
@@ -638,7 +825,7 @@ int CGXDLMSServerBase::ReadReply(CGXDLMSVariant name, OBJECT_TYPE objectType, in
 	}
 	vector<unsigned char> buff;
 	CGXOBISTemplate::SetData(buff, value.vt, value);
-	ret = m_Base.GenerateMessage(name, 0, buff, objectType, attributeOrdinal,
+	ret = m_Base.GenerateMessage(name, buff, objectType, attributeOrdinal,
 			m_Base.GetUseLogicalNameReferencing() ? DLMS_COMMAND_GET_RESPONSE : DLMS_COMMAND_READ_RESPONSE, Packets);
 	if (ret != 0)
 	{
@@ -647,7 +834,7 @@ int CGXDLMSServerBase::ReadReply(CGXDLMSVariant name, OBJECT_TYPE objectType, in
 	return ret;
 }
 
-int CGXDLMSServerBase::GetValue(CGXDLMSObject* pItem, int index, unsigned char* pParameters, int count, vector< vector<unsigned char> >& Packets)
+int CGXDLMSServerBase::GetValue(CGXDLMSObject* pItem, int index, int selector, CGXDLMSVariant& Parameters, vector< vector<unsigned char> >& Packets)
 {
 	if (index < 1)
 	{
@@ -657,19 +844,19 @@ int CGXDLMSServerBase::GetValue(CGXDLMSObject* pItem, int index, unsigned char* 
 	m_SendData.clear();
 	CGXDLMSVariant value;	
 	IGXDLMSBase* pTmp = dynamic_cast<IGXDLMSBase*>(pItem);
-	int ret = pTmp->GetValue(index, pParameters, count, value);
+	int ret = pTmp->GetValue(index, selector, Parameters, value);
 	if (ret != ERROR_CODES_OK)
 	{
 		printf("GetValue failed with error code %d\r\n", ret);
 		//Return HW error.
-		return ServerReportError(1, 5, 3, Packets);    
+		return ERROR_CODES_INVALID_PARAMETER;
 	}
 	DLMS_DATA_TYPE type = DLMS_DATA_TYPE_NONE;	
 	if (pItem->GetDataType(index, type) != ERROR_CODES_OK)
 	{
 		printf("GetDataType failed with error code %d\r\n", ret);
 		//Return HW error.
-		return ServerReportError(1, 5, 3, Packets);    
+		return ERROR_CODES_INVALID_PARAMETER;
 	}
 	if (type == DLMS_DATA_TYPE_NONE)
 	{
@@ -694,18 +881,22 @@ int CGXDLMSServerBase::GetValue(CGXDLMSObject* pItem, int index, unsigned char* 
 /// <param name="data"></param>        
 /// <param name="name"></param>
 /// <param name="attributeIndex"></param>
-int CGXDLMSServerBase::GetCommand(unsigned char* pData, int DataSize, OBJECT_TYPE& type, CGXDLMSVariant& name, int& attributeIndex, unsigned char*& pParameters, int& ParameterSize)
+int CGXDLMSServerBase::GetCommand(int cmd,unsigned char* pData, int DataSize, OBJECT_TYPE& type, CGXDLMSVariant& names, int& attributeIndex, int& Selector, CGXDLMSVariant& Parameters)   
 {
-	type = OBJECT_TYPE_NONE;
-    pParameters = NULL;
+	int ret;
+	Selector = 0;
+    type = OBJECT_TYPE_NONE;
     int index = 0;
+    names.Clear();
     if (m_Base.GetUseLogicalNameReferencing())
     {
-		type = (OBJECT_TYPE)CGXOBISTemplate::GetUInt16(pData + index);
-		index += 2;
-        basic_string<char> str;
+        type = (OBJECT_TYPE)CGXOBISTemplate::GetUInt16(pData + index);
+        index += 2;
+		DataSize -= 2;
+		basic_string<char> str;
 		basic_string<unsigned char> tmp((unsigned char*) (pData + index), 6);
 		index += 6;
+		DataSize -= 6;
 		char buff[4];
 		for(basic_string<unsigned char>::iterator it = tmp.begin(); it != tmp.end(); ++it)
         {
@@ -720,30 +911,112 @@ int CGXDLMSServerBase::GetCommand(unsigned char* pData, int DataSize, OBJECT_TYP
 #endif
 			str.append(buff);
         }
-        name = str;
+		names.vt = DLMS_DATA_TYPE_ARRAY;
+		names.Arr.push_back(str);
         attributeIndex = pData[index++];
-        //Skip data index
-        ++index;
-        ParameterSize = DataSize - index;
-        if (ParameterSize != 0)
+		--DataSize;
+        //if Value
+        if (DataSize - index != 0)
         {
-			pParameters = pData + index;
-        }
+            //If access selector is used.
+            if (pData[index++] != 0)
+            {
+				if (cmd != DLMS_COMMAND_METHOD_REQUEST)
+                {
+                    Selector = pData[index++];
+					--DataSize;
+                }
+            }
+			--DataSize;
+			if (DataSize != 0)
+			{
+				int a, b, c;
+				unsigned char* p = pData + index;
+				if ((ret = CGXOBISTemplate::GetData(p, DataSize, DLMS_DATA_TYPE_NONE, Parameters, &a, &b, &c)) != 0)
+				{
+					return ret;
+				}
+			}
+			return 0;
+        } 
     }
     else
     {
         attributeIndex = 0;
-        ++index;//Cnt
-        ++index;//Len.
-        name = CGXOBISTemplate::GetUInt16(pData + index);
-		index += 2;
-		ParameterSize = DataSize - index;                        
-        if (ParameterSize != 0)
+        int cnt = pData[index++];
+		--DataSize;
+		if (cmd == DLMS_COMMAND_READ_REQUEST)
         {
-			pParameters = pData + index;
+            for (int pos = 0; pos != cnt; ++pos)
+            {
+                int tp = pData[index++];
+				--DataSize;
+                if (tp == 2)
+                {
+					int sn = CGXOBISTemplate::GetUInt16(pData + index);
+					index += 2;
+					DataSize -= 2;
+					names.vt = DLMS_DATA_TYPE_ARRAY;
+					names.Arr.push_back(sn);
+                }
+                else if (tp == 4)
+                {
+					int sn = CGXOBISTemplate::GetUInt16(pData + index);
+					index += 2;
+					DataSize -= 2;
+					names.vt = DLMS_DATA_TYPE_ARRAY;
+                    names.Arr.push_back(sn);
+                    Selector = pData[index++];
+					--DataSize;
+
+					int a, b, c;
+					unsigned char* p = pData + index;
+					if ((ret = CGXOBISTemplate::GetData(p, DataSize, DLMS_DATA_TYPE_NONE, Parameters, &a, &b, &c)) != 0)
+					{
+						return ret;
+					}
+				}
+                else
+                {
+                    return ERROR_CODES_INVALID_PARAMETER;
+                }
+            }
         }
+		else if (cmd == DLMS_COMMAND_WRITE_REQUEST)
+        {
+            vector<unsigned char> accessTypes;
+            for (int pos = 0; pos != cnt; ++pos)
+            {
+                accessTypes.push_back(pData[index++]);
+				--DataSize;
+				int sn = CGXOBISTemplate::GetUInt16(pData + index);
+				index += 2;
+				DataSize -= 2;
+				names.vt = DLMS_DATA_TYPE_ARRAY;
+                names.Arr.push_back(sn);
+            }
+            //Get data count
+			int oldPos = index;
+			cnt = CGXOBISTemplate::GetObjectCount(pData, index);
+			DataSize -= index - oldPos;
+            for (int pos = 0; pos != cnt; ++pos)
+            {
+                if (accessTypes[pos] == 4)
+                {
+                    Selector = pData[index++];
+					--DataSize;
+                }
+				
+				int a, b, c;
+				unsigned char* p = pData + index;
+				if ((ret = CGXOBISTemplate::GetData(p, DataSize, DLMS_DATA_TYPE_NONE, Parameters, &a, &b, &c)) != 0)
+				{
+					return ret;
+				}				
+			}
+        }               
     }
-	return 0;
+	return 0;	
 }
 
 
@@ -755,11 +1028,33 @@ int CGXDLMSServerBase::SendData(vector< vector<unsigned char> >& buff, int index
 	return ERROR_CODES_OK;
 }
 
+int CGXDLMSServerBase::Acknowledge(DLMS_COMMAND cmd, unsigned char status, vector< vector<unsigned char> >& Packets)
+{
+	CGXDLMSVariant null;
+	return Acknowledge(cmd, status, null, Packets);
+}
+
 /** 
  Generates a acknowledge message.
 */
-int CGXDLMSServerBase::Acknowledge(DLMS_COMMAND cmd, unsigned char status, vector< vector<unsigned char> >& Packets)
+int CGXDLMSServerBase::Acknowledge(DLMS_COMMAND cmd, unsigned char status, CGXDLMSVariant& data, vector< vector<unsigned char> >& Packets)
 {
+	vector<unsigned char> buff(0, 7);	
+	if (!m_Base.m_UseLogicalNameReferencing)
+    {
+        buff.push_back(0x01);
+        buff.push_back(status);
+    }
+    if (data.vt != DLMS_DATA_TYPE_NONE)
+    {
+        buff.push_back(0x01);
+        buff.push_back(0x00);
+        CGXOBISTemplate::SetData(buff, data.vt, data);
+    }
+    unsigned int index = 0;
+    return m_Base.SplitToFrames(buff, 1, index, buff.size(), cmd, 0, Packets);
+
+	/*
     vector<unsigned char> buff(0, 7);	
     if (GetInterfaceType() == GXDLMS_INTERFACETYPE_GENERAL)
     {
@@ -772,39 +1067,44 @@ int CGXDLMSServerBase::Acknowledge(DLMS_COMMAND cmd, unsigned char status, vecto
     buff.push_back(0x81);
     buff.push_back(status);
 	return m_Base.AddFrame(m_Base.GenerateIFrame(), false, buff, 0, buff.size(), Packets);
+	*/
 }
 
 /// <summary>
 /// Generates a acknowledge message.
 /// </summary>
-int CGXDLMSServerBase::ServerReportError(unsigned char serviceErrorCode, unsigned char type, unsigned char code, vector< vector<unsigned char> >& Packets)
+int CGXDLMSServerBase::ServerReportError(DLMS_COMMAND cmd, unsigned char error, vector< vector<unsigned char> >& Packets)
 {    
 	printf("ServerReportError error has occurred.\r\n");
 	vector<unsigned char> buff(0, 10);
-    if (GetInterfaceType() == GXDLMS_INTERFACETYPE_GENERAL)
+	switch (cmd)
     {
-		GXHelpers::AddRange(buff, LLCReplyBytes, 3);
-    } 
-    int cmd;
-    if (GetUseLogicalNameReferencing())
-    {
-		cmd = DLMS_COMMAND_GET_RESPONSE;
+		case DLMS_COMMAND_READ_REQUEST:
+			cmd = DLMS_COMMAND_READ_RESPONSE;
+        break;
+		case DLMS_COMMAND_WRITE_REQUEST:        
+			cmd = DLMS_COMMAND_WRITE_RESPONSE;
+        break;
+		case DLMS_COMMAND_GET_REQUEST:
+			cmd = DLMS_COMMAND_GET_RESPONSE;
+        break;
+		case DLMS_COMMAND_SET_REQUEST:
+			cmd = DLMS_COMMAND_SET_RESPONSE;
+        break;
+		case DLMS_COMMAND_METHOD_REQUEST:
+			cmd = DLMS_COMMAND_METHOD_RESPONSE;
+        break;
+        default:
+            return ERROR_CODES_INVALID_PARAMETER;
     }
-    else
+    if (!GetUseLogicalNameReferencing())
     {
-		cmd = DLMS_COMMAND_READ_RESPONSE;
-    }
-    //Get request normal
-    buff.push_back(cmd);
-    if (GetUseLogicalNameReferencing())
-    {
-        buff.push_back(0x01);                
-    }
-    buff.push_back(serviceErrorCode);
-    //Invoke ID and priority.
-    buff.push_back(type);
-    buff.push_back(code);
-	return m_Base.AddFrame(m_Base.GenerateIFrame(), false, buff, 0, buff.size(), Packets);
+        buff.push_back(0x01);
+        buff.push_back(0x01);
+		buff.push_back(error);
+    }    
+    unsigned int index = 0;
+    return m_Base.SplitToFrames(buff, 0, index, buff.size(), cmd, error, Packets);	
 }  
 
 /// <summary>
@@ -832,16 +1132,12 @@ int CGXDLMSServerBase::GenerateDisconnectRequest(vector< vector<unsigned char> >
 		buff.insert(buff.begin(), 0x81); //FromatID
 		buff.insert(buff.begin() + 1, 0x80); //GroupID
 		buff.insert(buff.begin() + 2, len); //len		
+		return m_Base.AddFrame(DLMS_FRAME_TYPE_UA, false, buff, 0, buff.size(), Packets);
 	}
-	else
-	{
-		buff.push_back(0x63);
-		buff.push_back(0x03);
-		buff.push_back(0x80);
-		buff.push_back(0x01);
-		buff.push_back(0x00);
-	}
-	return m_Base.AddFrame(DLMS_FRAME_TYPE_UA, false, buff, 0, buff.size(), Packets);
+
+	buff.push_back(0x63);
+	buff.push_back(0x00);
+	return m_Base.AddFrame(0, false, buff, 0, buff.size(), Packets);	
 }
 
 // Parse AARQ request that cliend send and returns AARE request.

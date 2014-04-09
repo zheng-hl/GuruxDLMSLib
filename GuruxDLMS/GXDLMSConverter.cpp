@@ -507,3 +507,57 @@ const char* CGXDLMSConverter::ToString(SECURITY_SUITE value)
 	}
 	return "Unknown security suite";
 }
+
+const char* CGXDLMSConverter::ToString(GX_ASSOCIATION_STATUS value)
+{
+	switch(value)
+	{
+	case GX_ASSOCIATION_STATUS_NON_ASSOCIATED:
+			return "NonAssociated";
+		break;
+		case GX_ASSOCIATION_STATUS_ASSOCIATION_PENDING:
+			return "AssociationPending";
+		break;
+		case GX_ASSOCIATION_STATUS_ASSOCIATED:
+			return "Associated";
+		break;
+		default:
+		break;
+	}
+	return "Unknown association status";
+}
+
+const char* CGXDLMSConverter::ToString(OPTICAL_PROTOCOL_MODE value)	
+{
+	switch(value)
+	{
+	case OPTICAL_PROTOCOL_MODE_DEFAULT:
+			return "Default";
+		break;
+		case OPTICAL_PROTOCOL_MODE_NET:
+			return "Net";
+		break;
+		case OPTICAL_PROTOCOL_MODE_UNKNOWN:
+			return "Unknown";
+		break;
+		default:
+		break;
+	}
+	return "Unknown ptotocol mode";
+}
+
+const char* CGXDLMSConverter::ToString(LOCAL_PORT_RESPONSE_TIME value)
+{
+	switch(value)
+	{
+	case LOCAL_PORT_RESPONSE_TIME_20_MS:
+			return "ms20";
+		break;
+		case LOCAL_PORT_RESPONSE_TIME_200_MS:
+			return "ms200";
+		break;
+		default:
+		break;
+	}
+	return "Unknown response time";
+}

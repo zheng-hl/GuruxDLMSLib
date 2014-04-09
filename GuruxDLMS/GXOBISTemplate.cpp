@@ -236,7 +236,9 @@ int CGXOBISTemplate::SetData(std::vector<unsigned char>& buff, DLMS_DATA_TYPE ty
 			buff.insert(buff.end(), reinterpret_cast<const unsigned char*>(&value.byteArr[0]), 
 			        reinterpret_cast<const unsigned char*>(&value.byteArr[0] + value.byteArr.size()));
         }
-        else if (value.vt == DLMS_DATA_TYPE_NONE)
+        else if (value.vt == DLMS_DATA_TYPE_NONE || 
+			(value.byteArr.size() == 0 && 
+			(value.vt == DLMS_DATA_TYPE_ARRAY || value.vt == DLMS_DATA_TYPE_OCTET_STRING)))
         {
             SetObjectCount(0, buff);
         }
@@ -249,9 +251,40 @@ int CGXOBISTemplate::SetData(std::vector<unsigned char>& buff, DLMS_DATA_TYPE ty
 	{
 		buff.push_back(value.Arr.size());
 		for(vector<CGXDLMSVariant>::iterator it = value.Arr.begin(); it != value.Arr.end(); ++it)
-		{
+		{			
 			buff.push_back(it->vt);
 			it->GetBytes(buff);
+		}
+	}
+	else if (type == DLMS_DATA_TYPE_BIT_STRING)
+	{
+		int index = 0;
+		unsigned char val = 0;
+		SetObjectCount(value.strVal.size(), buff);
+		for(string::iterator it = value.strVal.begin(); it != value.strVal.end(); ++it)
+		{
+			if (*it == '1')
+			{
+				val |= (unsigned char)(1 << index++);
+			}
+			else if (*it == '0')
+			{
+				index++;
+			}
+			else 
+			{
+				return ERROR_CODES_INVALID_PARAMETER;
+			}
+			if (index == 8)
+			{
+				index = 0;
+				buff.push_back(val);
+				val = 0;
+			}
+		}
+		if (index != 0)
+		{
+			buff.push_back(val);
 		}
 	}
 	else

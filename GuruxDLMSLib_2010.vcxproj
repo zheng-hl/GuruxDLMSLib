@@ -126,6 +126,7 @@
     <ClCompile Include="GuruxDLMS\GXDLMS.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSClient.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSConverter.cpp" />
+    <ClCompile Include="GuruxDLMS\GXDLMSLimits.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSLNSettings.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSObjectFactory.cpp" />
     <ClCompile Include="GuruxDLMS\GXDLMSServerBase.cpp" />

@@ -410,7 +410,7 @@ int CGXDLMSClient::Read(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int At
 	DLMS_COMMAND cmd = m_base.m_UseLogicalNameReferencing ? DLMS_COMMAND_GET_REQUEST : DLMS_COMMAND_READ_REQUEST;
 	m_base.ClearProgress();
 	vector<unsigned char> data;
-	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
+	return m_base.GenerateMessage(name, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
 int CGXDLMSClient::Method(CGXDLMSObject* item, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets)
@@ -439,7 +439,7 @@ int CGXDLMSClient::Method(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int 
         }
         AttributeOrdinal = (value + (AttributeOrdinal - 1) * 0x8);
     }
-	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, DLMS_COMMAND_METHOD_REQUEST, Packets);    
+	return m_base.GenerateMessage(name, data, InterfaceClass, AttributeOrdinal, DLMS_COMMAND_METHOD_REQUEST, Packets);    
 }
 
 int CGXDLMSClient::Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, CGXDLMSVariant Value, vector< vector<unsigned char> >& Packets)
@@ -452,8 +452,12 @@ int CGXDLMSClient::Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int A
 	DLMS_COMMAND cmd = m_base.m_UseLogicalNameReferencing ? DLMS_COMMAND_SET_REQUEST : DLMS_COMMAND_WRITE_REQUEST;
 	m_base.ClearProgress();
 	vector<unsigned char> data;
-	CGXOBISTemplate::SetData(data, Value.vt, Value);
-	return m_base.GenerateMessage(name, 2, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
+	int ret;
+	if ((ret = CGXOBISTemplate::SetData(data, Value.vt, Value)) != 0)
+	{
+		return ret;
+	}
+	return m_base.GenerateMessage(name, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
 int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXDLMSObjectCollection& objects, bool findDescriptions)
@@ -533,7 +537,7 @@ int CGXDLMSClient::ReadRowsByRange(CGXDLMSVariant& Name, CGXDLMSObject* pSortObj
     data.push_back(0x01); //Add array type   
     data.push_back(0x00); //Add item count
 	DLMS_COMMAND cmd = m_base.m_UseLogicalNameReferencing ? DLMS_COMMAND_GET_REQUEST : DLMS_COMMAND_READ_REQUEST;
-	return m_base.GenerateMessage(Name, 4, data, OBJECT_TYPE_PROFILE_GENERIC, 2, cmd, Packets);	
+	return m_base.GenerateMessage(Name, data, OBJECT_TYPE_PROFILE_GENERIC, 2, cmd, Packets);	
 }
 
 int CGXDLMSClient::ReadRowsByEntry(CGXDLMSVariant& Name, unsigned int Index, unsigned int Count, vector< vector<unsigned char> >& Packets)
@@ -569,7 +573,7 @@ int CGXDLMSClient::ReadRowsByEntry(CGXDLMSVariant& Name, unsigned int Index, uns
 		return ret;
 	}
 	DLMS_COMMAND cmd = m_base.m_UseLogicalNameReferencing ? DLMS_COMMAND_GET_REQUEST : DLMS_COMMAND_READ_REQUEST;
-	return m_base.GenerateMessage(Name, 4, data, OBJECT_TYPE_PROFILE_GENERIC, 2, cmd, Packets);	
+	return m_base.GenerateMessage(Name, data, OBJECT_TYPE_PROFILE_GENERIC, 2, cmd, Packets);	
 }
 
 int CGXDLMSClient::ReceiverReady(GXDLMS_DATA_REQUEST_TYPES Type, vector< vector<unsigned char> >& Packets)

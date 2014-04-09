@@ -217,6 +217,9 @@
     <ClCompile Include="GuruxDLMS\Objects\GXxDLMSContextType.cpp">
       <Filter>Object Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GuruxDLMS\GXDLMSLimits.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXAttributeCollection.h">

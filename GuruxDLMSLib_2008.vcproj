@@ -165,6 +165,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GuruxDLMS\GXDLMSLimits.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GuruxDLMS\GXDLMSLNSettings.cpp"
 				>
 			</File>
