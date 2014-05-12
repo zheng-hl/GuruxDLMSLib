@@ -62,7 +62,6 @@ void CGXDLMSAssociationLogicalName::UpdateAccessRights(CGXDLMSObject* pObj, CGXD
 int CGXDLMSAssociationLogicalName::GetAccessRights(CGXDLMSObject* pItem, vector<unsigned char>& data)
 {
 	CGXAttributeCollection& attributes = pItem->GetAttributes();
-	attributes.clear();
 	data.push_back(DLMS_DATA_TYPE_STRUCTURE);
 	data.push_back(2);
 	data.push_back(DLMS_DATA_TYPE_ARRAY);
