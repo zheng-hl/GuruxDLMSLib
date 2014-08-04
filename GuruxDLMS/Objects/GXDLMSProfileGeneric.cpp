@@ -597,11 +597,14 @@ int CGXDLMSProfileGeneric::SetValue(int index, CGXDLMSVariant& value)
                 }
 				m_Buffer.push_back(row->Arr);
             }  			
-        }            
+        }
+		m_EntriesInUse = m_Buffer.size();
     }
     else if (index == 3)
     {
         m_CaptureObjects.clear();
+		m_Buffer.clear();
+		m_EntriesInUse = 0;
         if (value.vt == DLMS_DATA_TYPE_ARRAY)
         {
 			for (std::vector<CGXDLMSVariant >::iterator it = value.Arr.begin(); it != value.Arr.end(); ++it)

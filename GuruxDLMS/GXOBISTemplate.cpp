@@ -544,25 +544,11 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 	}
 	else if (Type == DLMS_DATA_TYPE_DATETIME)
 	{
-		if (knownType)
+        //If there is not enought data available.
+        if (size < 12)
         {
-             //If there is not enought data available.
-            if (size < 12)
-            {
-                size = 0;
-				return ERROR_CODES_OUTOFMEMORY;
-            }
-        }
-        else
-        {
-             //If there is not enough data available.
-            ++pBuff; //Get count.
-			--size;
-            if (size < 12)
-            {
-                size = 0;
-				return ERROR_CODES_OUTOFMEMORY;
-            }
+            size = 0;
+			return ERROR_CODES_OUTOFMEMORY;
         }
         //Get year.
         int year = GetUInt16(pBuff);
