@@ -211,7 +211,7 @@ CGXDLMSProfileGeneric::CGXDLMSProfileGeneric(unsigned short sn, CGXDLMSVariant v
 /**  
  Constructor.
 
- @param ln Logican Name of the object.
+ @param ln Logical Name of the object.
 */
 CGXDLMSProfileGeneric::CGXDLMSProfileGeneric(basic_string<char> ln) : CGXDLMSObject(OBJECT_TYPE_PROFILE_GENERIC, ln)
 {

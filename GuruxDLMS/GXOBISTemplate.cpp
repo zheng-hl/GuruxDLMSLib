@@ -478,7 +478,7 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 			return ERROR_CODES_OUTOFMEMORY;
 		}
 	}
-	//Excample Logical name is octet string, so do not change to string...
+	//Example Logical name is octet string, so do not change to string...
 	else if (Type == DLMS_DATA_TYPE_OCTET_STRING)
 	{
 		int pos = 0;
@@ -574,9 +574,27 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 		size -= 12;
         CGXDateTime dt(year, month, day, hour, minute, second, ms);
         dt.SetStatus(status);
-		//Add devitation.
+		//Add deviation if used.
 		if ((devitation & 0xFFFF) != 0x8000)
 		{
+			long offset = GetUTCOffset();
+			struct tm val = dt.GetValue();
+			val.tm_isdst = (status & GXDLMS_CLOCK_STATUS_DAYLIGHT_SAVE_ACTIVE) != 0;
+			if (val.tm_isdst)
+			{
+				devitation += 60;
+			}
+			offset -= devitation;
+			val.tm_min += offset;			
+			if (mktime(&val) == -1)
+			{
+				assert(0);
+			}		
+			dt.SetValue(val);
+		}
+		else //If deviation is not defined.
+		{
+			devitation = 0;
 			struct tm val = dt.GetValue();
 			val.tm_isdst = (status & GXDLMS_CLOCK_STATUS_DAYLIGHT_SAVE_ACTIVE) != 0;
 			if (val.tm_isdst)
@@ -588,23 +606,7 @@ int CGXOBISTemplate::GetData(unsigned char*& pBuff, int& size, DLMS_DATA_TYPE Ty
 			{
 				assert(0);
 			}		
-			dt.SetValue(val);
-		}
-		else
-		{
-			long offset = GetUTCOffset();
-			struct tm val = dt.GetValue();
-			val.tm_isdst = (status & GXDLMS_CLOCK_STATUS_DAYLIGHT_SAVE_ACTIVE) != 0;
-			if (val.tm_isdst)
-			{
-				devitation += 60;
-			}
-			val.tm_min += offset;			
-			if (mktime(&val) == -1)
-			{
-				assert(0);
-			}		
-			dt.SetValue(val);
+			dt.SetValue(val);			
 		}		
         value = dt;
 		return ERROR_CODES_OK;

@@ -68,7 +68,7 @@ CGXDLMSServerBase::CGXDLMSServerBase(bool UseLogicalNameReferencing,
 	}
 }
 
-//Is Logican Name referencing used.
+//Is Logical Name referencing used.
 bool CGXDLMSServerBase::GetUseLogicalNameReferencing()
 {
 	return m_Base.m_UseLogicalNameReferencing;

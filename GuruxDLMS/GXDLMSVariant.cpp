@@ -1655,7 +1655,6 @@ double CGXDLMSVariant::ToDouble()
 	}
 	if (vt == DLMS_DATA_TYPE_STRING_UTF8)
 	{
-		//TODO:
 		assert(0);
 	}
 	if (vt == DLMS_DATA_TYPE_INT8)
@@ -1677,13 +1676,11 @@ double CGXDLMSVariant::ToDouble()
 	}
 	if (vt == DLMS_DATA_TYPE_INT64)
 	{
-		//TODO:
-		assert(0);
+		return llVal;
 	}
 	if (vt == DLMS_DATA_TYPE_UINT64)
 	{
-		//TODO:
-		assert(0);
+		return ullVal;
 	}
 	if (vt == DLMS_DATA_TYPE_ENUM)
 	{
@@ -1699,5 +1696,4 @@ double CGXDLMSVariant::ToDouble()
 	}
 	assert(0);
 	return 0;
-
 }

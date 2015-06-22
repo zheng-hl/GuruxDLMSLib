@@ -883,12 +883,20 @@ int CGXDLMSClient::UpdateValue(unsigned char* pBuff, int Size, CGXDLMSObject* pO
 
 int CGXDLMSClient::UpdateValue(vector<unsigned char>& data, CGXDLMSObject* pObject, int index, CGXDLMSVariant& value)
 {
+	if (data.size() == 0)
+	{
+		return UpdateValue(NULL, 0, pObject, index, value);
+	}
 	return UpdateValue(&data[0], data.size(), pObject, index, value);
 }
 
 
 int CGXDLMSClient::GetDataType(vector<unsigned char>& data, DLMS_DATA_TYPE& Type)
 {	
+	if (data.size() == 0)
+	{
+		return GetDataType(NULL, 0, Type);
+	}
 	return GetDataType(&data[0], data.size(), Type);
 }
 

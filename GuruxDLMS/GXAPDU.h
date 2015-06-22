@@ -256,16 +256,21 @@ public:
 				--size;
 				len = *pBuff++ & 0xFF;
 				--size;
-				size -= len;
+				//size -= len;
 				// ACSE service user tag.
 				tag = *pBuff++ & 0xFF;
+				--size;
 				len = *pBuff++ & 0xFF;
+				--size;
 				// Result source diagnostic component.
 				tag = *pBuff++ & 0xFF;
+				--size;
 				len = *pBuff++ & 0xFF;
+				--size;
 				ResultDiagnosticValue = *pBuff++ & 0xFF;
+				--size;
 			}
-			 else if (tag == 0x8A || tag == 0x88) //Authentication.
+			else if (tag == 0x8A || tag == 0x88) //Authentication.
             {
                 tag = *pBuff++ & 0xFF;
 				--size;
@@ -276,6 +281,7 @@ public:
                 }                
 				--size;
 				short val = CGXOBISTemplate::GetInt16(pBuff);
+				pBuff += 2;
 				size -= 2;
                 if (val != 0x0780 && val != 0x0680)
                 {
@@ -292,6 +298,10 @@ public:
 				--size;
                 len = *pBuff++ & 0xFF;
 				--size;
+				//Get password.
+				m_Password.append(reinterpret_cast< char const* >(pBuff), len);
+				size -= len;
+				pBuff += len;
             }
             else if (tag == 0x8B || tag == 0x89) //Authentication.
             {
@@ -355,7 +365,7 @@ public:
 					--size;
                     len = *pBuff++ & 0xFF;
 					--size;
-					m_Password.append(*pBuff, len);
+					m_Password.append(reinterpret_cast< char const* >(pBuff), len);
 					size -= len;
                 }
                 else
