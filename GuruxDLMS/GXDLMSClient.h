@@ -197,6 +197,16 @@ public:
 	int Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int AttributeOrdinal, CGXDLMSVariant Data, vector< vector<unsigned char> >& Packets);
 	
 	/////////////////////////////////////////////////////////////////////////////
+	// Returns Write query as byte array.
+	/////////////////////////////////////////////////////////////////////////////
+	// pObject: COSEM object classs that is written to the meter..
+	// attributeOrdinal: The ordinal number of the requested attribute.
+	// Packets: Allocated packets.
+	// Returns: 0 if succeed. Otherwise error number.
+	/////////////////////////////////////////////////////////////////////////////
+    int Write(CGXDLMSObject* pObject, int attributeOrdinal, vector< vector<unsigned char> >& Packets);
+
+	/////////////////////////////////////////////////////////////////////////////
 	// Changes byte array received from the meter to given type.
 	/////////////////////////////////////////////////////////////////////////////
 	// value Byte array received from the meter.

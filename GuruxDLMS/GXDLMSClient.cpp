@@ -460,6 +460,44 @@ int CGXDLMSClient::Write(CGXDLMSVariant& name, OBJECT_TYPE InterfaceClass, int A
 	return m_base.GenerateMessage(name, data, InterfaceClass, AttributeOrdinal, cmd, Packets);
 }
 
+int CGXDLMSClient::Write(CGXDLMSObject* pObject, int attributeOrdinal, vector< vector<unsigned char> >& Packets)
+{
+	Packets.clear();
+	if (pObject == NULL || attributeOrdinal < 0)
+	{
+		return ERROR_CODES_INVALID_PARAMETER;
+	}	
+	DLMS_COMMAND cmd = m_base.m_UseLogicalNameReferencing ? DLMS_COMMAND_SET_REQUEST : DLMS_COMMAND_WRITE_REQUEST;
+	m_base.ClearProgress();
+	vector<unsigned char> data;
+	int ret;
+    CGXDLMSVariant parameter, value;
+    if ((ret = pObject->GetValue(attributeOrdinal, 0, parameter, value)) != 0)
+	{
+		return ret;
+	}
+    bool isObject = value.vt != DLMS_DATA_TYPE_OCTET_STRING;
+    if (!isObject)
+    {
+        DLMS_DATA_TYPE type;
+        if ((ret = pObject->GetDataType(attributeOrdinal, type)) != 0)
+        {
+		    return ret;
+        }
+        isObject = type != DLMS_DATA_TYPE_OCTET_STRING;
+    }
+    if (!isObject)
+    {
+        GXHelpers::AddRange(data, value.byteArr);
+    }
+    else if ((ret = CGXOBISTemplate::SetData(data, value.vt, value)) != 0)
+	{
+		return ret;
+    }
+    CGXDLMSVariant name = pObject->GetName();
+    return m_base.GenerateMessage(name, data, pObject->GetObjectType(), attributeOrdinal, cmd, Packets);
+}
+
 int CGXDLMSClient::ParseObjects(vector<unsigned char>& data, CGXDLMSObjectCollection& objects, bool findDescriptions)
 {		
 	int ret;
