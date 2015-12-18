@@ -66,7 +66,7 @@ public:
 		return m_base.m_UseLogicalNameReferencing;
 	}
 
-	GXDLMS_INTERFACETYPE GetIntefaceType()
+	GXDLMS_INTERFACETYPE GetInterfaceType()
 	{
 		return m_base.m_InterfaceType;
 	}

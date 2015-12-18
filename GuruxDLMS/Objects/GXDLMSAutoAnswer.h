@@ -83,9 +83,7 @@ class CGXDLMSAutoAnswer : public CGXDLMSObject
 	AUTO_CONNECT_MODE m_Mode;
     std::vector<std::pair< CGXDateTime, CGXDateTime> > m_ListeningWindow;
     AUTO_ANSWER_STATUS m_Status;
-    int m_NumberOfCalls;
-    CGXDLMSVariant m_NumberOfRings;
-    
+    int m_NumberOfCalls;    
 	void Init();
 public:
     /**  

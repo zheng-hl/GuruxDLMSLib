@@ -35,11 +35,11 @@
 #include "GXDLMSPppSetupLcpOption.h"
 #include <sstream> 
 
-CGXDLMSVariant CGXDLMSPppSetupLcpOption::GetType()
+PPP_SETUP_LCP_OPTION_TYPE CGXDLMSPppSetupLcpOption::GetType()
 {
     return m_Type;
 }
-void CGXDLMSPppSetupLcpOption::SetType(CGXDLMSVariant value)
+void CGXDLMSPppSetupLcpOption::SetType(PPP_SETUP_LCP_OPTION_TYPE value)
 {
     m_Type = value;
 }
@@ -67,7 +67,7 @@ void CGXDLMSPppSetupLcpOption::SetData(CGXDLMSVariant value)
 string CGXDLMSPppSetupLcpOption::ToString()
 {
 	std::stringstream sb;
-	sb << m_Type.ToString().c_str();
+	sb << m_Type;
 	sb << " ";
 	sb << m_Length;
 	return sb.str();

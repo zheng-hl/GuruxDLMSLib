@@ -185,6 +185,7 @@
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSRegisterMonitor.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSSapAssignment.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSSchedule.cpp" />
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSScheduleEntry.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSScriptAction.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSScriptTable.cpp" />
     <ClCompile Include="GuruxDLMS\Objects\GXDLMSSeasonProfile.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSRegisterMonitor.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSapAssignment.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSchedule.h" />
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSScheduleEntry.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSScriptAction.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSScriptTable.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSeasonProfile.h" />
@@ -276,8 +278,6 @@
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSSpecialDaysTable.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSTcpUdpSetup.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXDLMSWeekProfile.h" />
-    <ClInclude Include="GuruxDLMS\Objects\GXObjectCollection.h" />
-    <ClInclude Include="GuruxDLMS\Objects\GXRegisterObject.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXSendDestinationAndMethod.h" />
     <ClInclude Include="GuruxDLMS\Objects\GXxDLMSContextType.h" />
     <ClInclude Include="GuruxDLMS\Objects\IGXDLMSBase.h" />

@@ -1074,6 +1074,7 @@ void CGXDLMSVariant::GetBytes(std::vector<unsigned char>& buff)
 	{
 		if (this->vt == DLMS_DATA_TYPE_STRING)
 		{
+			buff.push_back(size);
 			for(int pos = 0; pos != size; ++pos)
 			{
 				buff.push_back(strVal[pos]);
@@ -1081,6 +1082,7 @@ void CGXDLMSVariant::GetBytes(std::vector<unsigned char>& buff)
 		}
 		else if (this->vt == DLMS_DATA_TYPE_OCTET_STRING)
 		{				
+			buff.push_back(size);
 			for(int pos = 0; pos != size; ++pos)
 			{
 				buff.push_back(byteArr[pos]);
@@ -1676,11 +1678,11 @@ double CGXDLMSVariant::ToDouble()
 	}
 	if (vt == DLMS_DATA_TYPE_INT64)
 	{
-		return llVal;
+		return (double) llVal;
 	}
 	if (vt == DLMS_DATA_TYPE_UINT64)
 	{
-		return ullVal;
+		return (double) ullVal;
 	}
 	if (vt == DLMS_DATA_TYPE_ENUM)
 	{

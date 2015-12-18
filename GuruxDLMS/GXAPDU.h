@@ -414,7 +414,7 @@ public:
         data.push_back(0x04); //Coding the choice for user-information (Octet STRING, universal)        
         data.push_back(0xE); //Length
         data.push_back(InitialResponce); // Tag for xDLMS-Initiate response
-        data.push_back(0x00); // Usage field for the response allowed component � not used
+        data.push_back(0x00); // Usage field for the response allowed component not used
         data.push_back(6); // DLMSVersioNumber
         data.push_back(0x5F);
         data.push_back(0x1F);

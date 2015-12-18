@@ -226,6 +226,7 @@ int CGXDLMSModemConfiguration::GetValue(int index, int selector, CGXDLMSVariant&
     }
     if (index == 2)
     {
+		value = m_CommunicationSpeed;
 		return ERROR_CODES_OK;
     }
     if (index == 3)

@@ -570,13 +570,14 @@ int CGXDLMSActivityCalendar::SetValue(int index, CGXDLMSVariant& value)
 			it.SetName(tmp.strVal);
 			CGXDLMSClient::ChangeType((*item).Arr[1].byteArr, DLMS_DATA_TYPE_DATETIME, tmp);
 			it.SetStart(tmp.dateTime);
-			CGXDLMSClient::ChangeType((*item).Arr[2].byteArr, DLMS_DATA_TYPE_DATETIME, tmp);
+			CGXDLMSClient::ChangeType((*item).Arr[2].byteArr, DLMS_DATA_TYPE_STRING, tmp);
             it.SetWeekName(tmp.strVal);
             m_SeasonProfileActive.push_back(it);
         }
     }
     else if (index == 4)
     {
+		m_WeekProfileTableActive.clear();
         for(vector<CGXDLMSVariant>::iterator item = value.Arr.begin(); item != value.Arr.end(); ++item)
         {
 			CGXDLMSVariant tmp;
@@ -595,6 +596,7 @@ int CGXDLMSActivityCalendar::SetValue(int index, CGXDLMSVariant& value)
     }
     else if (index == 5)
     {
+		m_DayProfileTableActive.clear();
         for(vector<CGXDLMSVariant>::iterator item = value.Arr.begin(); item != value.Arr.end(); ++item)
         {
             CGXDLMSDayProfile it;

@@ -36,7 +36,7 @@
 #include "../GXDLMSConverter.h"
 
 //Constructor.
-CGXDLMSHdlcSetup::CGXDLMSHdlcSetup() : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP)
+CGXDLMSIecHdlcSetup::CGXDLMSIecHdlcSetup() : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP)
 {
 	m_CommunicationSpeed = BAUDRATE_9600;
     m_WindowSizeTransmit = m_WindowSizeReceive = 1;
@@ -44,7 +44,7 @@ CGXDLMSHdlcSetup::CGXDLMSHdlcSetup() : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP)
 }
 
 //SN Constructor.
-CGXDLMSHdlcSetup::CGXDLMSHdlcSetup(unsigned short sn) : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP, sn)
+CGXDLMSIecHdlcSetup::CGXDLMSIecHdlcSetup(unsigned short sn) : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP, sn)
 {
 	m_CommunicationSpeed = BAUDRATE_9600;
     m_WindowSizeTransmit = m_WindowSizeReceive = 1;
@@ -52,98 +52,98 @@ CGXDLMSHdlcSetup::CGXDLMSHdlcSetup(unsigned short sn) : CGXDLMSObject(OBJECT_TYP
 }
 
 //LN Constructor.
-CGXDLMSHdlcSetup::CGXDLMSHdlcSetup(basic_string<char> ln) : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP, ln)
+CGXDLMSIecHdlcSetup::CGXDLMSIecHdlcSetup(basic_string<char> ln) : CGXDLMSObject(OBJECT_TYPE_IEC_HDLC_SETUP, ln)
 {
 	m_CommunicationSpeed = BAUDRATE_9600;
     m_WindowSizeTransmit = m_WindowSizeReceive = 1;
     m_MaximumInfoLengthTransmit = m_MaximumInfoLengthReceive = 128;
 }
 
-BAUDRATE CGXDLMSHdlcSetup::GetCommunicationSpeed()
+BAUDRATE CGXDLMSIecHdlcSetup::GetCommunicationSpeed()
 {
     return m_CommunicationSpeed;
 }
-void CGXDLMSHdlcSetup::SetCommunicationSpeed(BAUDRATE value)
+void CGXDLMSIecHdlcSetup::SetCommunicationSpeed(BAUDRATE value)
 {
     m_CommunicationSpeed = value;
 }
 
-int CGXDLMSHdlcSetup::GetWindowSizeTransmit()
+int CGXDLMSIecHdlcSetup::GetWindowSizeTransmit()
 {
     return m_WindowSizeTransmit;
 }
-void CGXDLMSHdlcSetup::SetWindowSizeTransmit(int value)
+void CGXDLMSIecHdlcSetup::SetWindowSizeTransmit(int value)
 {
     m_WindowSizeTransmit = value;
 }
 
-int CGXDLMSHdlcSetup::GetWindowSizeReceive()
+int CGXDLMSIecHdlcSetup::GetWindowSizeReceive()
 {
     return m_WindowSizeReceive;
 }
-void CGXDLMSHdlcSetup::SetWindowSizeReceive(int value)
+void CGXDLMSIecHdlcSetup::SetWindowSizeReceive(int value)
 {
     m_WindowSizeReceive = value;
 }
 
-int CGXDLMSHdlcSetup::GetMaximumInfoLengthTransmit()
+int CGXDLMSIecHdlcSetup::GetMaximumInfoLengthTransmit()
 {
     return m_MaximumInfoLengthTransmit;
 }
-void CGXDLMSHdlcSetup::SetMaximumInfoLengthTransmit(int value)
+void CGXDLMSIecHdlcSetup::SetMaximumInfoLengthTransmit(int value)
 {
     m_MaximumInfoLengthTransmit = value;
 }
 
-int CGXDLMSHdlcSetup::GetMaximumInfoLengthReceive()
+int CGXDLMSIecHdlcSetup::GetMaximumInfoLengthReceive()
 {
     return m_MaximumInfoLengthReceive;
 }
-void CGXDLMSHdlcSetup::SetMaximumInfoLengthReceive(int value)
+void CGXDLMSIecHdlcSetup::SetMaximumInfoLengthReceive(int value)
 {
     m_MaximumInfoLengthReceive = value;
 }
 
-int CGXDLMSHdlcSetup::GetInterCharachterTimeout()
+int CGXDLMSIecHdlcSetup::GetInterCharachterTimeout()
 {
     return m_InterCharachterTimeout;
 }
-void CGXDLMSHdlcSetup::SetInterCharachterTimeout(int value)
+void CGXDLMSIecHdlcSetup::SetInterCharachterTimeout(int value)
 {
     m_InterCharachterTimeout = value;
 }
 
-int CGXDLMSHdlcSetup::GetInactivityTimeout()
+int CGXDLMSIecHdlcSetup::GetInactivityTimeout()
 {
     return m_InactivityTimeout;
 }
-void CGXDLMSHdlcSetup::SetInactivityTimeout(int value)
+void CGXDLMSIecHdlcSetup::SetInactivityTimeout(int value)
 {
     m_InactivityTimeout = value;
 }
 
-int CGXDLMSHdlcSetup::GetDeviceAddress()
+int CGXDLMSIecHdlcSetup::GetDeviceAddress()
 {
     return m_DeviceAddress;
 }
-void CGXDLMSHdlcSetup::SetDeviceAddress(int value)
+void CGXDLMSIecHdlcSetup::SetDeviceAddress(int value)
 {
     m_DeviceAddress = value;
 }
 
 // Returns amount of attributes.
-int CGXDLMSHdlcSetup::GetAttributeCount()
+int CGXDLMSIecHdlcSetup::GetAttributeCount()
 {
 	return 9;
 }
 
 // Returns amount of methods.
-int CGXDLMSHdlcSetup::GetMethodCount()
+int CGXDLMSIecHdlcSetup::GetMethodCount()
 {
 	return 0;
 }
 
-void CGXDLMSHdlcSetup::GetValues(vector<string>& values)
+void CGXDLMSIecHdlcSetup::GetValues(vector<string>& values)
 {
 	values.clear();
 	string ln;
@@ -159,7 +159,7 @@ void CGXDLMSHdlcSetup::GetValues(vector<string>& values)
 	values.push_back(CGXDLMSVariant(m_DeviceAddress).ToString());
 }
 
-void CGXDLMSHdlcSetup::GetAttributeIndexToRead(vector<int>& attributes)
+void CGXDLMSIecHdlcSetup::GetAttributeIndexToRead(vector<int>& attributes)
 {
 	//LN is static and read only once.
 	if (CGXOBISTemplate::IsLogicalNameEmpty(m_LN))
@@ -208,7 +208,7 @@ void CGXDLMSHdlcSetup::GetAttributeIndexToRead(vector<int>& attributes)
     }
 }
 
-int CGXDLMSHdlcSetup::GetDataType(int index, DLMS_DATA_TYPE& type)
+int CGXDLMSIecHdlcSetup::GetDataType(int index, DLMS_DATA_TYPE& type)
 {
 	if (index == 1)
 	{
@@ -254,7 +254,7 @@ int CGXDLMSHdlcSetup::GetDataType(int index, DLMS_DATA_TYPE& type)
 }
 
 // Returns value of given attribute.
-int CGXDLMSHdlcSetup::GetValue(int index, int selector, CGXDLMSVariant& parameters, CGXDLMSVariant& value)
+int CGXDLMSIecHdlcSetup::GetValue(int index, int selector, CGXDLMSVariant& parameters, CGXDLMSVariant& value)
 {
 	if (index == 1)
 	{
@@ -301,7 +301,7 @@ int CGXDLMSHdlcSetup::GetValue(int index, int selector, CGXDLMSVariant& paramete
 }
 
 // Set value of given attribute.
-int CGXDLMSHdlcSetup::SetValue(int index, CGXDLMSVariant& value)
+int CGXDLMSIecHdlcSetup::SetValue(int index, CGXDLMSVariant& value)
 {
 	if (index == 1)
 	{			

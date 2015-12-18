@@ -315,7 +315,7 @@ int CGXDLMSProfileGeneric::GetSortObjectDataIndex()
 {
     return m_SortObjectDataIndex;
 }
-void CGXDLMSProfileGeneric::SetSortObject(int value)
+void CGXDLMSProfileGeneric::SetSortObjectDataIndex(int value)
 {
     m_SortObjectDataIndex = value;
 }    
@@ -439,7 +439,7 @@ int CGXDLMSProfileGeneric::GetAttributeCount()
 //Returns amount of methods.     
 int CGXDLMSProfileGeneric::GetMethodCount()
 {
-    return 1;
+    return 2;
 }
 
 int CGXDLMSProfileGeneric::GetDataType(int index, DLMS_DATA_TYPE& type)
@@ -516,6 +516,10 @@ int CGXDLMSProfileGeneric::GetValue(int index, int selector, CGXDLMSVariant& par
     {            
         value = GetSortMethod();
 		return ERROR_CODES_OK;
+    }
+	if (index == 5)
+    {            
+		return ERROR_CODES_INVALID_PARAMETER;
     }
     if (index == 7)
     {

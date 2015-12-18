@@ -36,7 +36,7 @@
 
 #include "GXDLMSObject.h"
 
-class CGXDLMSHdlcSetup : public CGXDLMSObject
+class CGXDLMSIecHdlcSetup : public CGXDLMSObject
 {
 	int m_InactivityTimeout;
     int m_DeviceAddress;
@@ -49,13 +49,13 @@ class CGXDLMSHdlcSetup : public CGXDLMSObject
 
 public:	
 	//Constructor.
-	CGXDLMSHdlcSetup();
+	CGXDLMSIecHdlcSetup();
 
 	//SN Constructor.
-	CGXDLMSHdlcSetup(unsigned short sn);
+	CGXDLMSIecHdlcSetup(unsigned short sn);
 
 	//LN Constructor.
-	CGXDLMSHdlcSetup(basic_string<char> ln);
+	CGXDLMSIecHdlcSetup(basic_string<char> ln);
 
 	BAUDRATE GetCommunicationSpeed();
     

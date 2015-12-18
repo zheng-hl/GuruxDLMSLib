@@ -73,7 +73,7 @@ int CGXDLMSSpecialDaysTable::GetAttributeCount()
 // Returns amount of methods.
 int CGXDLMSSpecialDaysTable::GetMethodCount()
 {
-	return 0;
+	return 2;
 }
 
 void CGXDLMSSpecialDaysTable::GetValues(vector<string>& values)

@@ -889,18 +889,7 @@ int CGXDLMS::ParseSNObjects(unsigned char* pBuff, int len, CGXDLMSObjectCollecti
 		{
 			pObj->m_LN[pos] = *(ln.byteArr.begin() + pos);
 		}
-
 		objects.push_back(pObj);
-		/*
-		if (class_id == OBJECT_TYPE_PROFILE_GENERIC)
-		{
-			objects.push_back(new CGXDLMSObject(sn, class_id, version, ln.byteArr));
-		}
-		else
-		{
-			objects.push_back(new CGXDLMSObject(sn, class_id, version, ln.byteArr));
-		}
-		*/
 	}
 	return 0;
 }
@@ -1237,7 +1226,6 @@ int CGXDLMS::GetActionInfo(OBJECT_TYPE objectType, int& value, int& count)
         case OBJECT_TYPE_AUTO_ANSWER:
         case OBJECT_TYPE_AUTO_CONNECT:
         case OBJECT_TYPE_MAC_ADDRESS_SETUP:
-        case OBJECT_TYPE_EVENT:
         case OBJECT_TYPE_GPRS_SETUP:
         case OBJECT_TYPE_IEC_HDLC_SETUP:
         case OBJECT_TYPE_IEC_LOCAL_PORT_SETUP:
@@ -1245,13 +1233,14 @@ int CGXDLMS::GetActionInfo(OBJECT_TYPE objectType, int& value, int& count)
         case OBJECT_TYPE_MODEM_CONFIGURATION:
         case OBJECT_TYPE_PPP_SETUP:
         case OBJECT_TYPE_REGISTER_MONITOR:
-        case OBJECT_TYPE_REMOTE_ANALOGUE_CONTROL:
-        case OBJECT_TYPE_REMOTE_DIGITAL_CONTROL:
+        case OBJECT_TYPE_ZIG_BEE_SAS_STARTUP:
+        case OBJECT_TYPE_ZIG_BEE_SAS_JOIN:
+        case OBJECT_TYPE_ZIG_BEE_SAS_APS_FRAGMENTATION:
+        case OBJECT_TYPE_ZIG_BEE_NETWORK_CONTROL:
         case OBJECT_TYPE_SCHEDULE:
         case OBJECT_TYPE_SMTP_SETUP:
         case OBJECT_TYPE_STATUS_MAPPING:
         case OBJECT_TYPE_TCP_UDP_SETUP:
-        case OBJECT_TYPE_TUNNEL:
         case OBJECT_TYPE_UTILITY_TABLES:
             return ERROR_CODES_INVALID_PARAMETER;
 		case OBJECT_TYPE_IMAGE_TRANSFER:

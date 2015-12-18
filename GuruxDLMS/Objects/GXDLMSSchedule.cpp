@@ -54,13 +54,13 @@ CGXDLMSSchedule::CGXDLMSSchedule(basic_string<char> ln) : CGXDLMSObject(OBJECT_T
 }
 
 // Get value of COSEM Data object.
-CGXDLMSVariant CGXDLMSSchedule::GetEntries()
+vector<CGXDLMSScheduleEntry>& CGXDLMSSchedule::GetEntries()
 {
     return m_Entries;
 }
 
 // Set value of COSEM Data object.
-void CGXDLMSSchedule::SetEntries(CGXDLMSVariant& value)
+void CGXDLMSSchedule::SetEntries(vector<CGXDLMSScheduleEntry>& value)
 {
     m_Entries = value;
 }
@@ -83,7 +83,7 @@ void CGXDLMSSchedule::GetValues(vector<string>& values)
 	string ln;
 	GetLogicalName(ln);
 	values.push_back(ln);
-	values.push_back(m_Entries.ToString());
+	//TODO: values.push_back(m_Entries.ToString());
 }
 
 void CGXDLMSSchedule::GetAttributeIndexToRead(vector<int>& attributes)
@@ -141,7 +141,27 @@ int CGXDLMSSchedule::SetValue(int index, CGXDLMSVariant& value)
 	}
     else if (index == 2)
 	{
-		m_Entries = value;
+        m_Entries.clear();
+        CGXDLMSVariant tmp;
+		for (std::vector<CGXDLMSVariant >::iterator it = value.Arr.begin(); it != value.Arr.end(); ++it)                
+        {     
+            CGXDLMSScheduleEntry item;
+            item.SetIndex((*it).Arr[0].ToInteger());
+            item.SetEnable((*it).Arr[1].boolVal);
+            CGXDLMSClient::ChangeType((*it).Arr[2].byteArr, DLMS_DATA_TYPE_OCTET_STRING, tmp);
+            item.SetLogicalName(tmp.ToString());
+            item.SetScriptSelector((*it).Arr[3].ToInteger());
+            CGXDLMSClient::ChangeType((*it).Arr[4].byteArr, DLMS_DATA_TYPE_DATETIME, tmp);
+            item.SetSwitchTime(tmp.dateTime);
+            item.SetValidityWindow((*it).Arr[5].ToInteger());
+            item.SetExecWeekdays((*it).Arr[6].strVal);
+            item.SetExecSpecDays((*it).Arr[7].strVal);
+            CGXDLMSClient::ChangeType((*it).Arr[8].byteArr, DLMS_DATA_TYPE_DATETIME, tmp);
+            item.SetBeginDate(tmp.dateTime);
+            CGXDLMSClient::ChangeType((*it).Arr[9].byteArr, DLMS_DATA_TYPE_DATETIME, tmp);
+            item.SetEndDate(tmp.dateTime);
+            m_Entries.push_back(item);
+        }
 	}	
 	else
 	{

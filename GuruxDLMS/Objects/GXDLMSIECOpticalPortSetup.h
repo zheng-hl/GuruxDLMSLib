@@ -38,6 +38,7 @@
 
 class CGXDLMSIECOpticalPortSetup : public CGXDLMSObject
 {
+    basic_string<char> m_Password1;
 	basic_string<char> m_Password2;
     basic_string<char> m_Password5;
     OPTICAL_PROTOCOL_MODE m_DefaultMode;
@@ -45,7 +46,6 @@ class CGXDLMSIECOpticalPortSetup : public CGXDLMSObject
     BAUDRATE m_ProposedBaudrate;
     LOCAL_PORT_RESPONSE_TIME m_ResponseTime;
     basic_string<char> m_DeviceAddress;
-    basic_string<char> m_Password1;
 
 	void Init();
 

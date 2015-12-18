@@ -35,43 +35,11 @@
 #pragma once
 
 #include "GXDLMSObject.h"
-
-enum AUTOCONNECTMODE
-{
-	/*
-     * No auto dialling,
-     */
-    AUTOCONNECTMODE_NO_AUTO_DIALLING = 0,
-    /**
-     * Auto dialling allowed anytime,
-     */
-    AUTOCONNECTMODE_AUTO_DIALLING_ALLOWED_ANYTIME = 1,
-    /**
-     * Auto dialling allowed within the validity time of the calling window.
-     */
-    AUTOCONNECTMODE_AUTO_DIALLING_ALLOWED_CALLING_WINDOW = 2,
-    /**
-     * “regular” auto dialling allowed within the validity time
-     * of the calling window; “alarm” initiated auto dialling allowed anytime,
-     */
-    AUTOCONNECTMODE_REGULAR_AUTO_DIALLING_ALLOWED_CALLING_WINDOW = 3,
-    /**
-     * SMS sending via Public Land Mobile Network (PLMN),
-     */
-    AUTOCONNECTMODE_SMS_SENDING_PLMN = 4,
-    /*
-     * SMS sending via PSTN.
-     */
-    AUTOCONNECTMODE_SMS_SENDING_PSTN = 5,
-    /*
-     * Email sending.
-     */
-    AUTOCONNECTMODE_EMAIL_SENDING = 6
-};
+#include "GXDLMSAutoAnswer.h"
 
 class CGXDLMSAutoConnect : public CGXDLMSObject
 {
-	AUTOCONNECTMODE m_Mode;
+	AUTO_CONNECT_MODE m_Mode;
 	std::vector<std::pair< CGXDateTime, CGXDateTime> > m_CallingWindow;	
     vector< basic_string<char> > m_Destinations;   
     int m_RepetitionDelay;
@@ -89,8 +57,8 @@ public:
 	//LN Constructor.
 	CGXDLMSAutoConnect(basic_string<char> ln);
 
-	AUTOCONNECTMODE GetMode();
-    void SetMode(AUTOCONNECTMODE value);
+	AUTO_CONNECT_MODE GetMode();
+    void SetMode(AUTO_CONNECT_MODE value);
     
     int GetRepetitions();
     

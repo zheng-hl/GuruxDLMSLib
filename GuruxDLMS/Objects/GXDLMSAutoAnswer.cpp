@@ -43,7 +43,6 @@ void CGXDLMSAutoAnswer::Init()
 	m_Mode = AUTO_CONNECT_MODE_NO_AUTO_DIALLING;
 	m_Status = AUTO_ANSWER_STATUS_INACTIVE;
 	m_NumberOfCalls = 0;
-	m_NumberOfRings = 0;
 }
 
 /**  

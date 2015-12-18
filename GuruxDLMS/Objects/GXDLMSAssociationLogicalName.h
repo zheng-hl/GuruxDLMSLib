@@ -48,7 +48,7 @@ private:
 	unsigned short m_ServerSAP;
     CGXApplicationContextName m_ApplicationContextName;
     CGXxDLMSContextType m_XDLMSContextInfo;
-    CGXAuthenticationMechanismName m_AuthenticationMechanismMame;
+    CGXAuthenticationMechanismName m_AuthenticationMechanismName;
     vector<unsigned char> m_Secret;
     string m_SecuritySetupReference;   
 

@@ -39,7 +39,7 @@
 
 void CGXDLMSAutoConnect::Init()
 {
-	m_Mode = AUTOCONNECTMODE_NO_AUTO_DIALLING;
+	m_Mode = AUTO_CONNECT_MODE_NO_AUTO_DIALLING;
 	m_RepetitionDelay = m_Repetitions = 0;
 }
 
@@ -60,11 +60,11 @@ CGXDLMSAutoConnect::CGXDLMSAutoConnect(basic_string<char> ln) : CGXDLMSObject(OB
 
 }
 
-AUTOCONNECTMODE CGXDLMSAutoConnect::GetMode()
+AUTO_CONNECT_MODE CGXDLMSAutoConnect::GetMode()
 {
     return m_Mode;
 }
-void CGXDLMSAutoConnect::SetMode(AUTOCONNECTMODE value)
+void CGXDLMSAutoConnect::SetMode(AUTO_CONNECT_MODE value)
 {
     m_Mode = value;
 }
@@ -317,7 +317,7 @@ int CGXDLMSAutoConnect::SetValue(int index, CGXDLMSVariant& value)
 	}
     else if (index == 2)
     {
-		SetMode((AUTOCONNECTMODE) value.lVal);
+		SetMode((AUTO_CONNECT_MODE) value.ToInteger());
 		return ERROR_CODES_OK;
     }
     else if (index == 3)

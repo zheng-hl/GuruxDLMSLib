@@ -299,6 +299,7 @@ int CGXDLMSRegisterMonitor::SetValue(int index, CGXDLMSVariant& value)
     }
     if (index == 4)
     {
+		m_Actions.clear();
 		for (vector<CGXDLMSVariant>::iterator action_set = value.Arr.begin(); action_set != value.Arr.end(); ++action_set)
         {
             CGXDLMSActionSet set;

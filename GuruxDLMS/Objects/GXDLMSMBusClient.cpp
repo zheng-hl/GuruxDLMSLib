@@ -157,11 +157,14 @@ void CGXDLMSMBusClient::SetAlarm(int value)
     m_Alarm = value;
 }
 
-
 // Returns amount of attributes.
 int CGXDLMSMBusClient::GetAttributeCount()
 {
-	return 12;
+	if (GetVersion() == 0)
+	{
+		return 12;
+	}
+	return 13;
 }
 
 // Returns amount of methods.

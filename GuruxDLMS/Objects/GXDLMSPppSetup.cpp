@@ -250,7 +250,7 @@ int CGXDLMSPppSetup::GetValue(int index, int selector, CGXDLMSVariant& parameter
     {
         vector<unsigned char> data;
         data.push_back(DLMS_DATA_TYPE_ARRAY);
-        data.push_back(m_IPCPOptions.size());
+        data.push_back(m_LCPOptions.size());
 		for(vector<CGXDLMSPppSetupLcpOption>::iterator it = m_LCPOptions.begin(); it != m_LCPOptions.end(); ++it)
         {
             data.push_back(DLMS_DATA_TYPE_STRUCTURE);
@@ -323,7 +323,7 @@ int CGXDLMSPppSetup::SetValue(int index, CGXDLMSVariant& value)
 			for(vector<CGXDLMSVariant>::iterator item = value.Arr.begin(); item != value.Arr.end(); ++item)                
             {
                 CGXDLMSPppSetupLcpOption it;
-				it.SetType((*item).Arr[0].ToInteger());
+				it.SetType((PPP_SETUP_LCP_OPTION_TYPE) (*item).Arr[0].ToInteger());
                 it.SetLength((*item).Arr[1].ToInteger());
                 it.SetData((*item).Arr[2]);
                 m_LCPOptions.push_back(it);

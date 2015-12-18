@@ -485,12 +485,8 @@ int CGXDLMSLimiter::SetValue(int index, CGXDLMSVariant& value)
 		CGXDLMSVariant tmp;
 		CGXDLMSClient::ChangeType(value.Arr[1].byteArr, DLMS_DATA_TYPE_OCTET_STRING, tmp);
 		string ln = tmp.ToString();
-		//TODO int attIndex = value.Arr[2].ToInteger();
+		m_SetSelectedAttributeIndex = value.Arr[2].ToInteger();
 		m_MonitoredValue = GetParent()->FindByLN(ot, ln);
-		if (m_MonitoredValue != NULL)
-		{
-			//TODO: MonitoredValue.setSelectedAttributeIndex(attIndex);
-		}
     }
     else if (index == 3)
     {

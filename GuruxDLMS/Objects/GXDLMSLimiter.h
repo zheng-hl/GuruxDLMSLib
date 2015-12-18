@@ -41,6 +41,7 @@
 class CGXDLMSLimiter : public CGXDLMSObject
 {
 	CGXDLMSObject* m_MonitoredValue;
+	int m_SetSelectedAttributeIndex;
     CGXDLMSVariant m_ThresholdActive;
     CGXDLMSVariant m_ThresholdNormal;
     CGXDLMSVariant m_ThresholdEmergency;

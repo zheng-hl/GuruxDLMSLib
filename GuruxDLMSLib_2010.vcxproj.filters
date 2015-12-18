@@ -31,12 +31,6 @@
     <ClCompile Include="GuruxDLMS\GXStandardObisCode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GuruxDLMS\Objects\GXDLMSClock.cpp">
-      <Filter>Object Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GuruxDLMS\Objects\GXDLMSObject.cpp">
-      <Filter>Object Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="GuruxDLMS\GXDLMSObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,6 +214,15 @@
     <ClCompile Include="GuruxDLMS\GXDLMSLimits.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSClock.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSObject.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GuruxDLMS\Objects\GXDLMSScheduleEntry.cpp">
+      <Filter>Object Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GuruxDLMS\ManufacturerSettings\GXAttributeCollection.h">
@@ -268,12 +271,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GuruxDLMS\GXOBISTemplate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GuruxDLMS\Objects\GXObjectCollection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GuruxDLMS\Objects\GXRegisterObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GuruxDLMS\GXStandardObisCode.h">
@@ -472,6 +469,9 @@
       <Filter>Object Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GuruxDLMS\Objects\GXxDLMSContextType.h">
+      <Filter>Object Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuruxDLMS\Objects\GXDLMSScheduleEntry.h">
       <Filter>Object Header Files</Filter>
     </ClInclude>
   </ItemGroup>

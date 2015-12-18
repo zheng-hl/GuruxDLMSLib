@@ -153,11 +153,11 @@ void CGXOBISTemplate::GetOctetString(unsigned char* pBuff, unsigned char* value,
 
 int CGXOBISTemplate::GetDateTime(unsigned char* pBuff, int buffLen, char* pValue)
 {	
+	int ret, month, day, hour, minute, second, year = 0;
 	if (buffLen != 12) //If there is not enough data available.
 	{		
 		return ERROR_CODES_OUTOFMEMORY;
 	}	
-	int month, day, hour, minute, second, year = 0;
 	//Get year.
 	GXHelpers::ChangeByteOrder(&year, pBuff, 2);
 	pBuff += 2;
@@ -173,10 +173,11 @@ int CGXOBISTemplate::GetDateTime(unsigned char* pBuff, int buffLen, char* pValue
 	second = *pBuff++;
 	pBuff++;
 #if _MSC_VER > 1000
-	sprintf_s(pValue, buffLen, "%d/%d/%d %d:%d:%d", month, day, year, hour, minute, second);
+	ret = sprintf_s(pValue, buffLen, "%d/%d/%d %d:%d:%d", month, day, year, hour, minute, second);
 #else
-	sprintf(pValue, "%d/%d/%d %d:%d:%d", month, day, year, hour, minute, second);
+	ret = sprintf(pValue, "%d/%d/%d %d:%d:%d", month, day, year, hour, minute, second);
 #endif	
+	pValue[ret] = 0;
 	return ERROR_CODES_OK;
 }
 

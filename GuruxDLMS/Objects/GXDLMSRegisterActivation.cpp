@@ -209,7 +209,8 @@ int CGXDLMSRegisterActivation::GetValue(int index, int selector, CGXDLMSVariant&
     }
     if (index == 4)
     {
-        //TODO: value = m_ActiveMask;
+		GXHelpers::AddRange(value.byteArr, m_ActiveMask, m_ActiveMask.size());
+		value.vt = DLMS_DATA_TYPE_OCTET_STRING;
 		return ERROR_CODES_OK;
     }
 	return ERROR_CODES_INVALID_PARAMETER;

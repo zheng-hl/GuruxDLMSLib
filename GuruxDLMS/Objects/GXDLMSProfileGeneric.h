@@ -163,7 +163,7 @@ public:
      Data index of sort object.
     */
     int GetSortObjectDataIndex();    
-	void SetSortObject(int value);
+	void SetSortObjectDataIndex(int value);
     
 	/** 
 	 Clears the buffer.

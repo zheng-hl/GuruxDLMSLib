@@ -36,10 +36,11 @@
 
 
 #include "GXDLMSObject.h"
+#include "GXDLMSScheduleEntry.h"
 
 class CGXDLMSSchedule : public CGXDLMSObject
 {
-	CGXDLMSVariant m_Entries;
+	vector<CGXDLMSScheduleEntry> m_Entries;
 public:	
 	//Constructor.
 	CGXDLMSSchedule();
@@ -51,10 +52,10 @@ public:
 	CGXDLMSSchedule(basic_string<char> ln);
 	
 	// Get value of COSEM Data object.
-    CGXDLMSVariant GetEntries();
+    vector<CGXDLMSScheduleEntry>& GetEntries();
 	
     // Set value of COSEM Data object.
-    void SetEntries(CGXDLMSVariant& value);
+    void SetEntries(vector<CGXDLMSScheduleEntry>& value);
     
     // Returns amount of attributes.
 	int GetAttributeCount();

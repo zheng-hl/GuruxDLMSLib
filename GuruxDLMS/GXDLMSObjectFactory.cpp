@@ -114,10 +114,6 @@ CGXDLMSObject* CGXDLMSObjectFactory::CreateObject(OBJECT_TYPE type)
     {
         return new CGXDLMSMacAddressSetup();
     }        
-    if (type == OBJECT_TYPE_EVENT)
-    {
-        return new CGXDLMSCustomObject(type);
-    }
     if (type == OBJECT_TYPE_EXTENDED_REGISTER)
     {
         return new CGXDLMSExtendedRegister();
@@ -132,7 +128,7 @@ CGXDLMSObject* CGXDLMSObjectFactory::CreateObject(OBJECT_TYPE type)
     }	
     if (type == OBJECT_TYPE_IEC_HDLC_SETUP)
     {
-        return new CGXDLMSHdlcSetup();
+        return new CGXDLMSIecHdlcSetup();
     }
     if (type == OBJECT_TYPE_IEC_LOCAL_PORT_SETUP)
     {
@@ -194,11 +190,15 @@ CGXDLMSObject* CGXDLMSObjectFactory::CreateObject(OBJECT_TYPE type)
     {
         return new CGXDLMSCustomObject(type);
     }
-    if (type == OBJECT_TYPE_REMOTE_ANALOGUE_CONTROL)
+    if (type == OBJECT_TYPE_ZIG_BEE_SAS_STARTUP)
     {
         return new CGXDLMSCustomObject(type);
     }
-    if (type == OBJECT_TYPE_REMOTE_DIGITAL_CONTROL)
+    if (type == OBJECT_TYPE_ZIG_BEE_SAS_JOIN)
+    {
+        return new CGXDLMSCustomObject(type);
+    }
+    if (type == OBJECT_TYPE_ZIG_BEE_SAS_APS_FRAGMENTATION)
     {
         return new CGXDLMSCustomObject(type);
     }
@@ -229,10 +229,6 @@ CGXDLMSObject* CGXDLMSObjectFactory::CreateObject(OBJECT_TYPE type)
     if (type == OBJECT_TYPE_TCP_UDP_SETUP)
     {
         return new CGXDLMSTcpUdpSetup();
-    }
-    if (type == OBJECT_TYPE_TUNNEL)
-    {
-        return new CGXDLMSCustomObject(type);
     }
     if (type == OBJECT_TYPE_UTILITY_TABLES)
     {
@@ -295,10 +291,6 @@ string CGXDLMSObjectFactory::ObjectTypeToString(OBJECT_TYPE type)
     {
         return "GXDLMSMacAddressSetup";
     }        
-    if (type == OBJECT_TYPE_EVENT)
-    {
-        return "GXDLMSEvent";
-    }
     if (type == OBJECT_TYPE_EXTENDED_REGISTER)
     {
         return "GXDLMSExtendedRegister";
@@ -375,13 +367,21 @@ string CGXDLMSObjectFactory::ObjectTypeToString(OBJECT_TYPE type)
     {
         return "GXDLMSRegisterTable";
     }
-    if (type == OBJECT_TYPE_REMOTE_ANALOGUE_CONTROL)
+    if (type == OBJECT_TYPE_ZIG_BEE_SAS_STARTUP)
     {
-        return "GXDLMSRemoteAnaloqueControl";
+        return "GXDLMSZigBeeSasStartup";
     }
-    if (type == OBJECT_TYPE_REMOTE_DIGITAL_CONTROL)
+    if (type == OBJECT_TYPE_ZIG_BEE_SAS_JOIN)
     {
-        return "GXDLMSRemoteDigitalControl";
+        return "GXDLMSZigBeeSasJoin";
+    }
+    if (type == OBJECT_TYPE_ZIG_BEE_SAS_APS_FRAGMENTATION)
+    {
+        return "GXDLMSZigBeeSasApsFragmentation";
+    }
+    if (type == OBJECT_TYPE_ZIG_BEE_NETWORK_CONTROL)
+    {
+        return "GXDLMSZigBeeNetworkControl";
     }
     if (type == OBJECT_TYPE_SAP_ASSIGNMENT)
     {
@@ -410,10 +410,6 @@ string CGXDLMSObjectFactory::ObjectTypeToString(OBJECT_TYPE type)
     if (type == OBJECT_TYPE_TCP_UDP_SETUP)
     {
         return "GXDLMSTcpUdpSetup";
-    }
-    if (type == OBJECT_TYPE_TUNNEL)
-    {
-        return "GXDLMStunnel";
     }
     if (type == OBJECT_TYPE_UTILITY_TABLES)
     {

@@ -361,10 +361,23 @@ enum OBJECT_TYPE
     OBJECT_TYPE_PARAMETER_MONITOR = 65,
     OBJECT_TYPE_WIRELESS_MODE_Q_CHANNEL = 73,
     OBJECT_TYPE_MBUS_MASTER_PORT_SETUP = 74,
-	OBJECT_TYPE_EVENT = 100,
-	OBJECT_TYPE_REMOTE_DIGITAL_CONTROL = 101,
-	OBJECT_TYPE_REMOTE_ANALOGUE_CONTROL = 102,
-	OBJECT_TYPE_TUNNEL = 103
+
+    /**
+     * Configure a ZigBee PRO device with information necessary to create or
+     * join the network.
+     */
+    OBJECT_TYPE_ZIG_BEE_SAS_STARTUP = 101,
+
+    /**
+     * Configure the behavior of a ZigBee PRO device on joining or loss of
+     * connection to the network.
+     */
+    OBJECT_TYPE_ZIG_BEE_SAS_JOIN = 102,
+    /**
+     * Configure the fragmentation feature of ZigBee PRO transport layer.
+     */
+    OBJECT_TYPE_ZIG_BEE_SAS_APS_FRAGMENTATION = 103,
+    OBJECT_TYPE_ZIG_BEE_NETWORK_CONTROL = 104
 };
 
 enum DLMS_COMMAND
