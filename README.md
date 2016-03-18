@@ -1,3 +1,7 @@
+Gurux.DLMS.cpp will replce GuruxDLMSLib
+=========================== 
+[Gurux.DLMS.cpp](https://github.com/Gurux/Gurux.DLMS.cpp "Gurux.DLMS.cpp")  will replace GuruxDLMSLib. This project is removed during spring time.
+
 See An [Gurux](http://www.gurux.org/ "Gurux") for an overview.
 
 Join the Gurux Community or follow [@Gurux](https://twitter.com/guruxorg "@Gurux") for project updates.
